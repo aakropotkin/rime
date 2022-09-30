@@ -1,0 +1,45 @@
+#! /usr/bin/env bash
+# ============================================================================ #
+
+: "${NIX:=nix}";
+
+# ---------------------------------------------------------------------------- #
+
+_preUpdateHooks=();  _postUpdateHooks=();
+_preLockHooks=();    _postLockHooks=();
+_preDevelopHooks=(); _postDevelopHooks=();
+_preBuildHooks=();   _postBuildHooks=();
+_preRunHooks=();     _postRunHooks=();
+
+CMD='';
+_args=();
+
+
+# ---------------------------------------------------------------------------- #
+
+while test "$#" -gt 0; do
+  case "$1" in
+    flake)
+      shift;
+      case "$1" in
+        update|lock) CMD="$1"; ;;
+        # probably an error honestly unless it's `nix flake --help'.
+        *) _args+=( flake "$1" ); ;;
+      esac
+    ;;  # FIXME: parse sub-command
+    develop|develop|shell|build|run) CMD="$1"; ;;
+    *) _args+=( "$1" ); ;;
+  esac
+  shift;
+done
+
+
+# ---------------------------------------------------------------------------- #
+
+
+
+# ---------------------------------------------------------------------------- #
+#
+#
+#
+# ============================================================================ #
