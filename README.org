@@ -1,6 +1,6 @@
-#+TITLE: rime
+#+TITLE: Rime: Nix CLI Wrapper Generators
 
-* Rime: Nix CLI Wrapper Generators
+* About
 Sometimes I felt the need to add pre/post hooks to Nix CLI commands; particularly for the flakes.
 For example "update all sub-flakes when ~nix flake update~ is called on a parent".
 
