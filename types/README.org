@@ -1,0 +1,13 @@
+#+TITLE: rime
+
+* Rime: Nix CLI Wrapper Generators
+Sometimes I felt the need to add pre/post hooks to Nix CLI commands; particularly for the flakes.
+For example "update all sub-flakes when ~nix flake update~ is called on a parent".
+
+The goal of this repo is collect a few wrapper generators and useful routines for extending the base TUI.
+
+** libs and types
+Given that the Nix flakes interfaces revolve around URI parsing, I've defined some URI parsers and types ( using YANTS ).
+
+I initially took a shot at exposing Nix's builtin =parseFlakeRef= or =fetchTree= routines, but they were rooted in the actual fetching of flakes and trees to port as standalone routines.
+It could be done, but it's less effort for me to just write that stuff in Nix anyway and avoid fooling with plugins.
