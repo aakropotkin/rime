@@ -103,7 +103,7 @@
       },
       "locked": {
         "lastModified": 0,
-        "narHash": "sha256-uD+fsWDEJ7drkQ4zKLLAvJRH9qqr1u8wFc5skCo16is=",
+        "narHash": "sha256-2hRwWSHI5ejqRv1pjt0GDD59tJX5m1CtDDHHthn9wgc=",
         "path": "../.",
         "type": "path"
       },
@@ -121,13 +121,17 @@
     "url-testing": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-ly95wRAFHmFju8+h94M7dGxS2yYLx+roYdfQUmwucOU=",
-        "type": "file",
-        "url": "https://github.com/cweb/url-testing"
+        "lastModified": 1488481697,
+        "narHash": "sha256-FDHs3rU0WVjssnFqB4jk6Zw8+2BIUweiiFBwlEwcTSE=",
+        "owner": "cweb",
+        "repo": "url-testing",
+        "rev": "242774f8f12dc2184ee3bdd160fb7cfb43714bb6",
+        "type": "github"
       },
       "original": {
-        "type": "file",
-        "url": "https://github.com/cweb/url-testing"
+        "owner": "cweb",
+        "repo": "url-testing",
+        "type": "github"
       }
     },
     "yants-src": {

@@ -18,10 +18,16 @@
     pkgsForSys = system: nixpkgs.legacyPackages.${system};
   in {  # Begin Outputs
 
+    inherit lib;
+
 # ---------------------------------------------------------------------------- #
 
     # Pure `lib' extensions.
-    overlays.lib  = final: prev: {};
+    overlays.lib = final: prev: {
+      ytypes = ( prev.ytypes or {} ) // ( import ./types/uri.nix {
+        lib = final;
+      } );
+    };
     # Nixpkgs overlay: Builders, Packages, Overrides, etc.
     overlays.pkgs = final: prev: let
       callPackagesWith = auto: prev.lib.callPackagesWith ( final // auto );
