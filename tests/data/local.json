@@ -1,12 +1,9 @@
 {
-  "tests": {
-    "desc": "A collection of URL test cases, compiled from Webkit's /fast/url tests, Julian Reschke, and other sources.",
-    "group": [
-    {
-      "name": "host",
-      "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/host.js",
-      "desc": "Test cases from Webkit's fast/url/host.js",
-      "test": [
+  "host": {
+    "name": "host",
+    "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/host.js",
+    "desc": "Test cases from Webkit's fast/url/host.js",
+    "test": [
       {
         "id": "1",
         "name": "A pathless URL",
@@ -28,25 +25,25 @@
       {
         "id": "4",
         "name": "",
-        "url": "http://GOO\u00a0\u3000goo.urltest.lookout.net/",
+        "url": "http://GOO 　goo.urltest.lookout.net/",
         "expect_url": "http://goo%20%20goo.urltest.lookout.net/"
       },
       {
         "id": "5",
         "name": "",
-        "url": "http://GOO\u200b\u2060\ufeffgoo.urltest.lookout.net/",
+        "url": "http://GOO​⁠﻿goo.urltest.lookout.net/",
         "expect_url": "http://googoo.urltest.lookout.net/"
       },
       {
         "id": "6",
         "name": "",
-        "url": "http://www.foo\u3002bar.urltest.lookout.net/",
+        "url": "http://www.foo。bar.urltest.lookout.net/",
         "expect_url": "http://www.foo.bar.urltest.lookout.net/"
       },
       {
         "id": "7",
         "name": "",
-        "url": "http://\ufdd0zyx.urltest.lookout.net/",
+        "url": "http://﷐zyx.urltest.lookout.net/",
         "expect_url": "http://%EF%BF%BDzyx.urltest.lookout.net/"
       },
       {
@@ -58,13 +55,13 @@
       {
         "id": "9",
         "name": "",
-        "url": "http://\uff27\uff4f.urltest.lookout.net/",
+        "url": "http://Ｇｏ.urltest.lookout.net/",
         "expect_url": "http://go.urltest.lookout.net/"
       },
       {
         "id": "10",
         "name": "",
-        "url": "http://\uff05\uff14\uff11.urltest.lookout.net/",
+        "url": "http://％４１.urltest.lookout.net/",
         "expect_url": "http://a.urltest.lookout.net/"
       },
       {
@@ -76,7 +73,7 @@
       {
         "id": "12",
         "name": "",
-        "url": "http://\uff05\uff10\uff10.urltest.lookout.net/",
+        "url": "http://％００.urltest.lookout.net/",
         "expect_url": "http://%00.urltest.lookout.net/"
       },
       {
@@ -88,13 +85,13 @@
       {
         "id": "14",
         "name": "",
-        "url": "http://\u4f60\u597d\u4f60\u597d.urltest.lookout.net/",
+        "url": "http://你好你好.urltest.lookout.net/",
         "expect_url": "http://xn--6qqa088eba.urltest.lookout.net/"
       },
       {
         "id": "15",
         "name": "",
-        "url": "http://%E4%BD%A0%E5%A5%BD\u4f60\u597d.urltest.lookout.net/",
+        "url": "http://%E4%BD%A0%E5%A5%BD你好.urltest.lookout.net/",
         "expect_url": "http://xn--6qqa088eba.urltest.lookout.net/"
       },
       {
@@ -142,7 +139,7 @@
       {
         "id": "23",
         "name": "",
-        "url": "http://\uff10\uff38\uff43\uff10\uff0e\uff10\uff12\uff15\uff10\uff0e\uff10\uff11.urltest.lookout.net/",
+        "url": "http://０Ｘｃ０．０２５０．０１.urltest.lookout.net/",
         "expect_url": "http://192.168.0.1.urltest.lookout.net/"
       },
       {
@@ -160,7 +157,7 @@
       {
         "id": "26",
         "name": "",
-        "url": "http://\u0442(.urltest.lookout.net",
+        "url": "http://т(.urltest.lookout.net",
         "expect_url": "http://xn--%28-7ed.urltest.lookout.net/"
       },
       {
@@ -175,252 +172,252 @@
         "url": "http://urltest.lookout.net::80::443/",
         "expect_url": "http://urltest.lookout.net/"
       }
-      ]
-    },
-    {
-      "name": "idna2003",
-      "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/idna2003.js",
-      "desc": "Test cases from Webkit's fast/url/idna2003.js",
-      "test": [
+    ]
+  },
+  "idna2003": {
+    "name": "idna2003",
+    "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/idna2003.js",
+    "desc": "Test cases from Webkit's fast/url/idna2003.js",
+    "test": [
       {
         "id": "1",
         "name": "",
-        "url": "http://fa\u00DF.de.urltest.lookout.net/",
+        "url": "http://faß.de.urltest.lookout.net/",
         "expect_url": "http://fass.de.urltest.lookout.net/"
       },
       {
         "id": "2",
         "name": "",
-        "url": "http://\u03B2\u03CC\u03BB\u03BF\u03C2.urltest.lookout.net/",
+        "url": "http://βόλος.urltest.lookout.net/",
         "expect_url": "http://xn--nxasmq6b.urltest.lookout.net/"
       },
       {
         "id": "3",
         "name": "",
-        "url": "http://\u0DC1\u0DCA\u200D\u0DBB\u0DD3.urltest.lookout.net/",
+        "url": "http://ශ්‍රී.urltest.lookout.net/",
         "expect_url": "http://xn--10cl1a0b.urltest.lookout.net/"
       },
       {
         "id": "4",
         "name": "",
-        "url": "http://\u0646\u0627\u0645\u0647\u200C\u0627\u06CC.urltest.lookout.net/",
+        "url": "http://نامه‌ای.urltest.lookout.net/",
         "expect_url": "http://xn--mgba3gch31f.urltest.lookout.net/"
       },
       {
         "id": "5",
         "name": "",
-        "url": "http://www.loo\u0138out.urltest.lookout.net/",
+        "url": "http://www.looĸout.urltest.lookout.net/",
         "expect_url": "http://www.xn--looout-5bb.urltest.lookout.net/"
       },
       {
         "id": "6",
         "name": "",
-        "url": "http://\u15EF\u15EF\u15EF.urltest.lookout.net/",
+        "url": "http://ᗯᗯᗯ.urltest.lookout.net/",
         "expect_url": "http://xn--1qeaa.urltest.lookout.net/"
       },
       {
         "id": "7",
         "name": "",
-        "url": "http://www.lookout.\u0441\u043E\u043C.urltest.lookout.net/",
+        "url": "http://www.lookout.сом.urltest.lookout.net/",
         "expect_url": "http://www.lookout.xn--l1adi.urltest.lookout.net/"
       },
       {
         "id": "8",
         "name": "",
-        "url": "http://www.lookout.net\uFF1A80.urltest.lookout.net/",
+        "url": "http://www.lookout.net：80.urltest.lookout.net/",
         "expect_url": "http://www.lookout.net.urltest.lookout.net:80/"
       },
       {
         "id": "9",
         "name": "",
-        "url": "http://www\u2025urltest.lookout.net/",
+        "url": "http://www‥urltest.lookout.net/",
         "expect_url": "http://www..urltest.lookout.net/"
       },
       {
         "id": "10",
         "name": "",
-        "url": "http://www.lookout\u2027net.urltest.lookout.net/",
+        "url": "http://www.lookout‧net.urltest.lookout.net/",
         "expect_url": "http://www.xn--lookoutnet-406e.urltest.lookout.net/"
       },
       {
         "id": "11",
         "name": "",
-        "url": "http://www.loo\u0138out.urltest.lookout.net/",
+        "url": "http://www.looĸout.urltest.lookout.net/",
         "expect_url": "http://www.xn--looout-5bb.urltest.lookout.net/"
       },
       {
         "id": "12",
         "name": "",
-        "url": "http://urltest.lookout.net\u2A7480/",
+        "url": "http://urltest.lookout.net⩴80/",
         "expect_url": "http://urltest.lookout.net::%3D80/"
       },
       {
         "id": "13",
         "name": "",
-        "url": "http://www\u00A0.urltest.lookout.net/",
+        "url": "http://www .urltest.lookout.net/",
         "expect_url": "http://www%20.urltest.lookout.net/"
       },
       {
         "id": "14",
         "name": "",
-        "url": "http://\u1680.urltest.lookout.net/",
+        "url": "http:// .urltest.lookout.net/",
         "expect_url": "http://%E1%9A%80.urltest.lookout.net/"
       },
       {
         "id": "15",
         "name": "",
-        "url": "http://\u001F.urltest.lookout.net/",
+        "url": "http://\u001f.urltest.lookout.net/",
         "expect_url": "http://%1F.urltest.lookout.net/"
       },
       {
         "id": "16",
         "name": "",
-        "url": "http://\u06DD.urltest.lookout.net/",
+        "url": "http://۝.urltest.lookout.net/",
         "expect_url": "http://%DB%9D.urltest.lookout.net/"
       },
       {
         "id": "17",
         "name": "",
-        "url": "http://\u180E.urltest.lookout.net/",
+        "url": "http://᠎.urltest.lookout.net/",
         "expect_url": "http://%E1%A0%8E.urltest.lookout.net/"
       },
       {
         "id": "18",
         "name": "",
-        "url": "http://look\u2060.urltest.lookout.net/",
+        "url": "http://look⁠.urltest.lookout.net/",
         "expect_url": "http://look%E2%81%A0.urltest.lookout.net/"
       },
       {
         "id": "19",
         "name": "",
-        "url": "http://look\uFEFFout.urltest.lookout.net/",
+        "url": "http://look﻿out.urltest.lookout.net/",
         "expect_url": "http://look%EF%BB%BFout.urltest.lookout.net/"
       },
       {
         "id": "20",
         "name": "",
-        "url": "http://look\uD83F\uDFFEout.urltest.lookout.net/",
+        "url": "http://look🿾out.urltest.lookout.net/",
         "expect_url": "http://look%F0%9F%BF%BEout.urltest.lookout.net/"
       },
       {
         "id": "21",
         "name": "",
-        "url": "http://look\uFFFAout.urltest.lookout.net/",
+        "url": "http://look￺out.urltest.lookout.net/",
         "expect_url": "http://look%EF%BF%BAout.urltest.lookout.net/"
       },
       {
         "id": "22",
         "name": "",
-        "url": "http://look\u2FF0out.urltest.lookout.net/",
+        "url": "http://look⿰out.urltest.lookout.net/",
         "expect_url": "http://look%E2%BF%B0out.urltest.lookout.net/"
       },
       {
         "id": "23",
         "name": "",
-        "url": "http://look\u0341out.urltest.lookout.net/",
+        "url": "http://looḱout.urltest.lookout.net/",
         "expect_url": "http://look%CD%81out.urltest.lookout.net/"
       },
       {
         "id": "24",
         "name": "",
-        "url": "http://look\u202Eout.urltest.lookout.net/",
+        "url": "http://look‮out.urltest.lookout.net/",
         "expect_url": "http://look%E2%80%AEout.urltest.lookout.net/"
       },
       {
         "id": "25",
         "name": "",
-        "url": "http://look\u206Bout.urltest.lookout.net/",
+        "url": "http://look⁫out.urltest.lookout.net/",
         "expect_url": "http://look%E2%81%ABout.urltest.lookout.net/"
       },
       {
         "id": "26",
         "name": "",
-        "url": "http://look\uDB40\uDC01out.urltest.lookout.net/",
+        "url": "http://look󠀁out.urltest.lookout.net/",
         "expect_url": "http://look%F3%A0%80%81out.urltest.lookout.net/"
       },
       {
         "id": "27",
         "name": "",
-        "url": "http://look\uDB40\uDC20out.urltest.lookout.net/",
+        "url": "http://look󠀠out.urltest.lookout.net/",
         "expect_url": "http://look%F3%A0%80%A0out.urltest.lookout.net/"
       },
       {
         "id": "28",
         "name": "",
-        "url": "http://look\u05BEout.urltest.lookout.net/",
+        "url": "http://look־out.urltest.lookout.net/",
         "expect_url": "http://look%D6%BEout.urltest.lookout.net/"
       }
-      ]
-    },
-    {
-      "name": "idna2008",
-      "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/idna2008.js",
-      "desc": "Test cases from Webkit's fast/url/idna2008.js",
-      "test": [
+    ]
+  },
+  "idna2008": {
+    "name": "idna2008",
+    "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/idna2008.js",
+    "desc": "Test cases from Webkit's fast/url/idna2008.js",
+    "test": [
       {
         "id": "1",
         "name": "",
-        "url": "http://B\u00FCcher.de.urltest.lookout.net/",
+        "url": "http://Bücher.de.urltest.lookout.net/",
         "expect_url": "http://xn--bcher-kva.de.urltest.lookout.net/"
       },
       {
         "id": "2",
         "name": "",
-        "url": "http://fa\u00DF.de.urltest.lookout.net/",
+        "url": "http://faß.de.urltest.lookout.net/",
         "expect_url": "http://xn--fa-hia.de.urltest.lookout.net/"
       },
       {
         "id": "3",
         "name": "",
-        "url": "http://\u03B2\u03CC\u03BB\u03BF\u03C2.com.urltest.lookout.net/",
+        "url": "http://βόλος.com.urltest.lookout.net/",
         "expect_url": "http://xn--nxasmm1c.com.urltest.lookout.net/"
       },
       {
         "id": "4",
         "name": "",
-        "url": "http://\u0DC1\u0DCA\u200D\u0DBB\u0DD3.com.urltest.lookout.net/",
+        "url": "http://ශ්‍රී.com.urltest.lookout.net/",
         "expect_url": "http://xn--10cl1a0b660p.com.urltest.lookout.net/"
       },
       {
         "id": "5",
         "name": "",
-        "url": "http://\u0646\u0627\u0645\u0647\u200C\u0627\u06CC.urltest.lookout.net/",
+        "url": "http://نامه‌ای.urltest.lookout.net/",
         "expect_url": "http://xn--mgba3gch31f060k.urltest.lookout.net/"
       },
       {
         "id": "6",
         "name": "",
-        "url": "http://\u2665.urltest.lookout.net/",
-        "expect_url": "http://\uFFFD.urltest.lookout.net/"
+        "url": "http://♥.urltest.lookout.net/",
+        "expect_url": "http://�.urltest.lookout.net/"
       },
       {
         "id": "7",
         "name": "",
-        "url": "http://\u0378.urltest.lookout.net/",
-        "expect_url": "http://\uFFFD.urltest.lookout.net/"
+        "url": "http://͸.urltest.lookout.net/",
+        "expect_url": "http://�.urltest.lookout.net/"
       },
       {
         "id": "8",
         "name": "",
-        "url": "http://\u04C0.urltest.lookout.net/",
-        "expect_url": "http://\uFFFD.urltest.lookout.net/"
+        "url": "http://Ӏ.urltest.lookout.net/",
+        "expect_url": "http://�.urltest.lookout.net/"
       },
       {
         "id": "9",
         "name": "",
-        "url": "http://\uD87E\uDC68.urltest.lookout.net/",
-        "expect_url": "http://\uFFFD.urltest.lookout.net/"
+        "url": "http://㛼.urltest.lookout.net/",
+        "expect_url": "http://�.urltest.lookout.net/"
       },
       {
         "id": "10",
         "name": "",
-        "url": "http://\u2183.urltest.lookout.net/",
-        "expect_url": "http://\uFFFD.urltest.lookout.net/"
+        "url": "http://Ↄ.urltest.lookout.net/",
+        "expect_url": "http://�.urltest.lookout.net/"
       },
       {
         "id": "11",
         "name": "",
-        "url": "http://look\u034Fout.urltest.lookout.net/",
+        "url": "http://look͏out.urltest.lookout.net/",
         "expect_url": "http://lookout.urltest.lookout.net/"
       },
       {
@@ -432,19 +429,19 @@
       {
         "id": "13",
         "name": "",
-        "url": "http://\u09dc.urltest.lookout.net/",
-        "expect_url": "http://\u09A1\u09BC.urltest.lookout.net/"
+        "url": "http://ড়.urltest.lookout.net/",
+        "expect_url": "http://ড়.urltest.lookout.net/"
       },
       {
         "id": "14",
         "name": "",
-        "url": "http://\u1E9E.urltest.lookout.net/",
+        "url": "http://ẞ.urltest.lookout.net/",
         "expect_url": "http://ss.urltest.lookout.net/"
       },
       {
         "id": "15",
         "name": "",
-        "url": "http://\u1E9E.urltest.lookout.net/",
+        "url": "http://ẞ.urltest.lookout.net/",
         "expect_url": "http://ss.urltest.lookout.net/"
       },
       {
@@ -474,16 +471,16 @@
       {
         "id": "20",
         "name": "",
-        "url": "http://foo\u0300.urltest.lookout.net/",
+        "url": "http://foò.urltest.lookout.net/",
         "expect_url": "http://foo%CC%80.bar.com/"
       }
-      ]
-    },
-    {
-      "name": "path",
-      "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/path.js",
-      "desc": "Test cases from Webkit's fast/url/path.js",
-      "test": [
+    ]
+  },
+  "path": {
+    "name": "path",
+    "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/path.js",
+    "desc": "Test cases from Webkit's fast/url/path.js",
+    "test": [
       {
         "id": "1",
         "name": "",
@@ -625,7 +622,7 @@
       {
         "id": "24",
         "name": "",
-        "url": "http://urltest.lookout.net/foo%2\u00c2\u00a9zbar",
+        "url": "http://urltest.lookout.net/foo%2Â©zbar",
         "expect_url": "http://urltest.lookout.net/foo%2%C3%82%C2%A9zbar"
       },
       {
@@ -637,7 +634,7 @@
       {
         "id": "26",
         "name": "",
-        "url": "http://urltest.lookout.net/foo\u0009\u0091%91",
+        "url": "http://urltest.lookout.net/foo\t%91",
         "expect_url": "http://urltest.lookout.net/foo%09%C2%91%91"
       },
       {
@@ -685,46 +682,46 @@
       {
         "id": "34",
         "name": "",
-        "url": "http://urltest.lookout.net/\u4f60\u597d\u4f60\u597d",
+        "url": "http://urltest.lookout.net/你好你好",
         "expect_url": "http://urltest.lookout.net/%E4%BD%A0%E5%A5%BD%E4%BD%A0%E5%A5%BD"
       },
       {
         "id": "35",
         "name": "",
-        "url": "http://urltest.lookout.net/\ufdd0zyx",
+        "url": "http://urltest.lookout.net/﷐zyx",
         "expect_url": "http://urltest.lookout.net/%EF%BF%BDzyx"
       },
       {
         "id": "36",
         "name": "",
-        "url": "http://urltest.lookout.net/\u2025/foo",
+        "url": "http://urltest.lookout.net/‥/foo",
         "expect_url": "http://urltest.lookout.net/%E2%80%A5/foo"
       },
       {
         "id": "37",
         "name": "",
-        "url": "http://urltest.lookout.net/\uFEFF/foo",
+        "url": "http://urltest.lookout.net/﻿/foo",
         "expect_url": "http://urltest.lookout.net/%EF%BB%BF/foo"
       },
       {
         "id": "38",
         "name": "",
-        "url": "http://urltest.lookout.net/\u202E/foo/\u202D/bar",
+        "url": "http://urltest.lookout.net/‮/foo/‭/bar",
         "expect_url": "http://urltest.lookout.net/%E2%80%AE/foo/%E2%80%AD/bar"
       },
       {
         "id": "39",
         "name": "",
-        "url": "http://urltest.lookout.net\uFF0Ffoo/",
+        "url": "http://urltest.lookout.net／foo/",
         "expect_url": "http://urltest.lookout.net/foo/"
       }
-      ]
-    },
-    {
-      "name": "query",
-      "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/query.js",
-      "desc": "Test cases from Webkit's fast/url/query.js",
-      "test": [
+    ]
+  },
+  "query": {
+    "name": "query",
+    "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/query.js",
+    "desc": "Test cases from Webkit's fast/url/query.js",
+    "test": [
       {
         "id": "1",
         "name": "",
@@ -752,7 +749,7 @@
       {
         "id": "5",
         "name": "",
-        "url": "http://urltest.lookout.net/?q=\u4F60\u597D",
+        "url": "http://urltest.lookout.net/?q=你好",
         "expect_url": "http://urltest.lookout.net/?q=%26%2320320%3B%26%2322909%3B"
       },
       {
@@ -767,13 +764,13 @@
         "url": "http://urltest.lookout.net/?q=\"asdf\"",
         "expect_url": "http://urltest.lookout.net/?q=%22asdf%22"
       }
-      ]
-    },
-    {
-      "name": "relative",
-      "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/relative.js",
-      "desc": "Test cases from Webkit's fast/url/relative.js",
-      "test": [
+    ]
+  },
+  "relative": {
+    "name": "relative",
+    "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/relative.js",
+    "desc": "Test cases from Webkit's fast/url/relative.js",
+    "test": [
       {
         "id": "1",
         "name": "",
@@ -1096,13 +1093,13 @@
         "rel": "/\\\\Another.urltest.lookout.net\\\\path",
         "expect_rel": "http://another.urltest.lookout.net/path"
       }
-      ]
-    },
-    {
-      "name": "segments",
-      "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/segments.js",
-      "desc": "Test cases from Webkit's fast/url/segments.js",
-      "test": [
+    ]
+  },
+  "segments": {
+    "name": "segments",
+    "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/segments.js",
+    "desc": "Test cases from Webkit's fast/url/segments.js",
+    "test": [
       {
         "id": "1",
         "name": "",
@@ -1130,7 +1127,7 @@
       {
         "id": "3",
         "name": "",
-        "rel": "\u0009   :foo.com   \u000A",
+        "rel": "\t   :foo.com   \n",
         "base": "http://urltest.lookout.net/foo/bar",
         "expect_protocol": "http:",
         "expect_hostname": "urltest.lookout.net",
@@ -1154,7 +1151,7 @@
       {
         "id": "5",
         "name": "",
-        "rel": "a:\u0009 foo.com",
+        "rel": "a:\t foo.com",
         "base": "http://urltest.lookout.net/foo/bar",
         "expect_protocol": "a:",
         "expect_hostname": "",
@@ -1178,7 +1175,7 @@
       {
         "id": "18",
         "name": "",
-        "rel": "  \u0009",
+        "rel": "  \t",
         "base": "http://urltest.lookout.net/foo/bar",
         "expect_protocol": "http:",
         "expect_hostname": "urltest.lookout.net",
@@ -1535,13 +1532,13 @@
         "expect_search": "",
         "expect_hash": ""
       }
-      ]
-    },
-    {
-      "name": "standard-url",
-      "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/standard-url.js",
-      "desc": "Test cases from Webkit's fast/url/standard-url.js",
-      "test": [
+    ]
+  },
+  "standard-url": {
+    "name": "standard-url",
+    "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/standard-url.js",
+    "desc": "Test cases from Webkit's fast/url/standard-url.js",
+    "test": [
       {
         "id": "1",
         "name": "",
@@ -1584,30 +1581,30 @@
         "url": "http://urltest.lookout.net:80/",
         "expect_url": "http://urltest.lookout.net/"
       }
-      ]
-    },
-    {
-      "name": "trivial-segments",
-      "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/trivial-segments.js",
-      "desc": "Test cases from Webkit's fast/url/trivial-segments.js",
-      "test": {
-        "id": "1",
-        "name": "",
-        "rel": "http://urltest.lookout.net/",
-        "base": "http://urltest.lookout.net/foo/bar",
-        "expect_protocol": "http:",
-        "expect_hostname": "urltest.lookout.net",
-        "expect_port": "",
-        "expect_pathname": "/",
-        "expect_search": "",
-        "expect_hash": ""
-      }
-    },
-    {
-      "name": "trivial",
-      "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/trivial.js",
-      "desc": "Test cases from Webkit's fast/url/trivial.js",
-      "test": [
+    ]
+  },
+  "trivial-segments": {
+    "name": "trivial-segments",
+    "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/trivial-segments.js",
+    "desc": "Test cases from Webkit's fast/url/trivial-segments.js",
+    "test": {
+      "id": "1",
+      "name": "",
+      "rel": "http://urltest.lookout.net/",
+      "base": "http://urltest.lookout.net/foo/bar",
+      "expect_protocol": "http:",
+      "expect_hostname": "urltest.lookout.net",
+      "expect_port": "",
+      "expect_pathname": "/",
+      "expect_search": "",
+      "expect_hash": ""
+    }
+  },
+  "trivial": {
+    "name": "trivial",
+    "link": "http://trac.webkit.org/browser/trunk/LayoutTests/fast/url/script-tests/trivial.js",
+    "desc": "Test cases from Webkit's fast/url/trivial.js",
+    "test": [
       {
         "id": "1",
         "name": "",
@@ -1622,13 +1619,13 @@
         "rel": "/",
         "expect_rel": "http://urltest.lookout.net/"
       }
-      ]
-    },
-    {
-      "name": "normalization",
-      "link": "#",
-      "desc": "Test cases for normalization behaviors - see http://www.unicode.org/reports/tr15/ Figure 6 and RFC3987",
-      "test": [
+    ]
+  },
+  "normalization": {
+    "name": "normalization",
+    "link": "#",
+    "desc": "Test cases for normalization behaviors - see http://www.unicode.org/reports/tr15/ Figure 6 and RFC3987",
+    "test": [
       {
         "id": "1",
         "name": "",
@@ -1658,8 +1655,8 @@
         "name": "",
         "charset": "utf-8",
         "base": "http://urltest.lookout.net/",
-        "rel": "\uFB01?\uFB01#\uFB01",
-        "expect_rel": "\uFB01?\uFB01#\uFB01"
+        "rel": "ﬁ?ﬁ#ﬁ",
+        "expect_rel": "ﬁ?ﬁ#ﬁ"
       },
       {
         "id": "5",
@@ -1674,8 +1671,8 @@
         "name": "",
         "charset": "utf-8",
         "base": "http://urltest.lookout.net/",
-        "rel": "2\u2075?2\u2075#2\u2075",
-        "expect_rel": "2\u2075?2\u2075#2\u2075"
+        "rel": "2⁵?2⁵#2⁵",
+        "expect_rel": "2⁵?2⁵#2⁵"
       },
       {
         "id": "7",
@@ -1690,48 +1687,48 @@
         "name": "",
         "charset": "windows-1258",
         "base": "http://urltest.lookout.net/",
-        "rel": "foo?q=\u2665",
-        "expect_rel": "foo?q=\u2665"
+        "rel": "foo?q=♥",
+        "expect_rel": "foo?q=♥"
       },
       {
         "id": "9",
         "name": "",
         "charset": "utf-8",
         "base": "http://urltest.lookout.net/",
-        "rel": "\u1E9B\u0323/?\u1E9B\u0323#\u1E9B\u0323",
-        "expect_rel": "\u1E9B\u0323/?\u1E9B\u0323#\u1E9B\u0323"
+        "rel": "ẛ̣/?ẛ̣#ẛ̣",
+        "expect_rel": "ẛ̣/?ẛ̣#ẛ̣"
       },
       {
         "id": "10",
         "name": "",
         "charset": "utf-8",
         "base": "http://urltest.lookout.net/",
-        "rel": "\u212B/?\u212B#\u212B",
-        "expect_rel": "\u1E9B\u0323/?\u1E9B\u0323#\u1E9B\u0323"
+        "rel": "Å/?Å#Å",
+        "expect_rel": "ẛ̣/?ẛ̣#ẛ̣"
       },
       {
         "id": "11",
         "name": "",
         "charset": "utf-8",
         "base": "http://urltest.lookout.net/",
-        "rel": "\u1E9B\u0323/?\u1E9B\u0323#\u1E9B\u0323",
-        "expect_rel": "\u1E9B\u0323/?\u1E9B\u0323#\u1E9B\u0323"
+        "rel": "ẛ̣/?ẛ̣#ẛ̣",
+        "expect_rel": "ẛ̣/?ẛ̣#ẛ̣"
       },
       {
         "id": "12",
         "name": "",
         "charset": "utf-8",
         "base": "http://urltest.lookout.net/",
-        "rel": "\u1E0B\u0323/?\u1E0B\u0323#\u1E0B\u0323",
-        "expect_rel": "\u1E0B\u0323/?\u1E0B\u0323#\u1E0B\u0323"
+        "rel": "ḍ̇/?ḍ̇#ḍ̇",
+        "expect_rel": "ḍ̇/?ḍ̇#ḍ̇"
       }
-      ]
-    },
-    {
-      "name": "whitespace",
-      "link": "#",
-      "desc": "Various references with white space",
-      "test": [
+    ]
+  },
+  "whitespace": {
+    "name": "whitespace",
+    "link": "#",
+    "desc": "Various references with white space",
+    "test": [
       {
         "id": "1",
         "name": "",
@@ -1744,13 +1741,13 @@
         "url": "http://urltest.lookout.net/ ",
         "expect_url": "http://urltest.lookout.net/ "
       }
-      ]
-    },
-    {
-      "name": "percent-encoding",
-      "link": "#",
-      "desc": "Test how percent-encoding is handled",
-      "test": [
+    ]
+  },
+  "percent-encoding": {
+    "name": "percent-encoding",
+    "link": "#",
+    "desc": "Test how percent-encoding is handled",
+    "test": [
       {
         "id": "1",
         "name": "Test if delimeters such as \"?\" are unencoded",
@@ -1857,8 +1854,6 @@
         "url": "http://urltest.lookout.net/?D%C3%BCrst",
         "expect_url": "http://urltest.lookout.net/?D%C3%BCrst"
       }
-      ]
-    }
     ]
   }
 }

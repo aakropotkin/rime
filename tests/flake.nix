@@ -20,11 +20,11 @@
       in builtins.foldl' proc [] lst;
       allTests = json: let
         proc = acc: x: acc ++ ( urlsFromTest x );
-      in builtins.foldl' proc [] json.tests.group;
+      in builtins.foldl' proc [] ( builtins.attrValues json );
     in {
       json = {
-        remote = lib.importJSON "${url-testing}/urls.json";
-        local  = lib.importJSON "${url-testing}/urls-local.json";
+        remote = lib.importJSON "${url-testing}/remote.json";
+        local  = lib.importJSON "${url-testing}/local.json";
       };
       urls = builtins.mapAttrs ( _: allTests ) self.data.json;
     };
