@@ -4,6 +4,7 @@
       "inputs": {
         "nix": "nix",
         "nixpkgs": [
+          "rime",
           "nixpkgs"
         ],
         "yants-src": "yants-src"
@@ -43,6 +44,7 @@
       "inputs": {
         "lowdown-src": "lowdown-src",
         "nixpkgs": [
+          "rime",
           "ak-nix",
           "nixpkgs"
         ],
@@ -94,10 +96,38 @@
         "type": "github"
       }
     },
-    "root": {
+    "rime": {
       "inputs": {
         "ak-nix": "ak-nix",
         "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 0,
+        "narHash": "sha256-uD+fsWDEJ7drkQ4zKLLAvJRH9qqr1u8wFc5skCo16is=",
+        "path": "../.",
+        "type": "path"
+      },
+      "original": {
+        "path": "../.",
+        "type": "path"
+      }
+    },
+    "root": {
+      "inputs": {
+        "rime": "rime",
+        "url-testing": "url-testing"
+      }
+    },
+    "url-testing": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-ly95wRAFHmFju8+h94M7dGxS2yYLx+roYdfQUmwucOU=",
+        "type": "file",
+        "url": "https://github.com/cweb/url-testing"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://github.com/cweb/url-testing"
       }
     },
     "yants-src": {

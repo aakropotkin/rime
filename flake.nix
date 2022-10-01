@@ -13,7 +13,7 @@
 
 # ---------------------------------------------------------------------------- #
 
-  outputs = { self, nixpkgs, ak-nix, ... }: let
+  outputs = { self, nixpkgs, ak-nix, ... } @ inputs: let
     lib = ak-nix.lib.extend self.overlays.lib;
     pkgsForSys = system: nixpkgs.legacyPackages.${system};
   in {  # Begin Outputs
