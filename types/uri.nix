@@ -68,10 +68,33 @@
     net_path_p     = "//${authority_p}(${abs_path_p})";
     opaque_part_p  = "${uri_ns_p1}(${uri_c})*";
     hier_part_p    = "(${net_path_p}|${abs_path_p})(\\?${query_p})?";
-    rel_uri_p = "(${net_path_p}|${abs_path_p}|${rel_path_p})(\\?${query_p})?";
-    abs_uri_p = "${scheme_p}:(${hier_part_p}|${opaque_part_p})";
-    uri_ref_p = "(${abs_uri_p}|${rel_uri_p})?(#${fragment_p})?";
+    rel_uri_p  = "(${net_path_p}|${abs_path_p}|${rel_path_p})(\\?${query_p})?";
+    abs_uri_p  = "${scheme_p}:(${hier_part_p}|${opaque_part_p})";
+    uri_ref_p  = "(${abs_uri_p}|${rel_uri_p})?(#${fragment_p})?";
+    flake_id_p = "[[:alpha:]][${word_c}]*";
+    rev_p      = "[[:xdigit:]]\{40\}";
+    # Refs matching this pattern fail
+    bad_git_ref_p = let
+      parts = builtins.concatStringsSep "|" [
+        "//" "/\\." "\\.\\." "[[:cntrl:]]" "[[:space:]]" "[:?^~[]"
+        "\\\\" "\\*" "\\.lock/" "@\\{"
+      ];
+    in builtins.concatStringsSep "|" [
+      "[./].*" ".*\\.lock" ".*[/.]" "@" "" ".*(${parts}).*"
+    ];
+    # Git Revs must match this, and not match `bad_git_ref_p'
+    maybe_git_ref_p = "[[:alnum:]][a-zA-Z0-9_.\\/-]*";
   };
+
+
+# ---------------------------------------------------------------------------- #
+
+  # A git ref, such as "git:<OWNER>/<REPO>/release-v1"
+  git_ref_t = with patterns; let
+    cond = s:
+      ( lib.test patterns.maybe_git_ref_p s ) &&
+      ( ! ( lib.test patterns.bad_git_ref_p s ) );
+  in restrict "git:ref" cond string;
 
 
 # ---------------------------------------------------------------------------- #
@@ -118,11 +141,10 @@ in {
     pseudo_ccs
     patterns
   ;
-  ytypes = {
-    inherit
-      scheme_t
-    ;
-  };
+  inherit
+    scheme_t
+    git_ref_t
+  ;
 }
 
 # ---------------------------------------------------------------------------- #
