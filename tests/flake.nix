@@ -1,30 +1,18 @@
 {
 
   inputs.rime.url = "path:../.";
-  inputs.url-testing.url = "github:cweb/url-testing";
-  inputs.url-testing.flake = false;
+  #inputs.url-testing.url = "github:cweb/url-testing";
+  #inputs.url-testing.flake = false;
 
-  outputs = { self, rime, url-testing, ...  } @ inputs: {
-
+  outputs = { self, rime, ...  } @ inputs: let
     inherit (rime) lib;
+    url-testing = toString ./data;
+  in with lib.ytypes.uri_str_types; {
 
     data = let
-      jsonClean = f: let
-        r = {
-          "\r" = "";
-          "\n" = "";
-          "\\\\\\u597D" = "<EVIL>";
-        };
-        killUni = str: let
-          s = builtins.split "(\\\\)u[[:xdigit:]]" str;
-          proc = acc: x: if builtins.isList x then acc + "<UNI>" else acc + x;
-        in builtins.foldl' proc "" s;
-        rep = builtins.replaceStrings ( builtins.attrNames r )
-                                      ( builtins.attrValues r );
-      in builtins.fromJSON ( rep ( killUni ( builtins.readFile f ) ) );
       urlsFromTest = group: let
         proc = acc: x:
-          if ( x ? url ) && ( ! ( self.lib.test ".*<UNI>.*" x.url ) )
+          if ( x ? url ) && ( ! ( lib.test ".*<UNI>.*" x.url ) )
           then acc ++ [x.url]
           else acc;
         lst = if builtins.isList group.test then group.test else
@@ -35,14 +23,14 @@
       in builtins.foldl' proc [] json.tests.group;
     in {
       json = {
-        remote = jsonClean "${url-testing}/urls.json";
-        local  = jsonClean "${url-testing}/urls-local.json";
+        remote = lib.importJSON "${url-testing}/urls.json";
+        local  = lib.importJSON "${url-testing}/urls-local.json";
       };
       urls = builtins.mapAttrs ( _: allTests ) self.data.json;
     };
 
     testUrl = url: let
-      e = builtins.tryEval ( self.lib.ytypes.uri_str_types.uri_t url );
+      e = builtins.tryEval ( uri_t url );
       v = builtins.deepSeq e e;
     in e // { inherit url; };
     testResults = builtins.mapAttrs ( _: map self.testUrl ) self.data.urls;

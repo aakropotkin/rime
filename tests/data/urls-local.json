@@ -305,53 +305,47 @@
       {
         "id": "21",
         "name": "",
-        "url": "http://look\uDEADout.urltest.lookout.net/",
-        "expect_url": "http://look%ED%BA%ADout.urltest.lookout.net/"
-      },
-      {
-        "id": "22",
-        "name": "",
         "url": "http://look\uFFFAout.urltest.lookout.net/",
         "expect_url": "http://look%EF%BF%BAout.urltest.lookout.net/"
       },
       {
-        "id": "23",
+        "id": "22",
         "name": "",
         "url": "http://look\u2FF0out.urltest.lookout.net/",
         "expect_url": "http://look%E2%BF%B0out.urltest.lookout.net/"
       },
       {
-        "id": "24",
+        "id": "23",
         "name": "",
         "url": "http://look\u0341out.urltest.lookout.net/",
         "expect_url": "http://look%CD%81out.urltest.lookout.net/"
       },
       {
-        "id": "25",
+        "id": "24",
         "name": "",
         "url": "http://look\u202Eout.urltest.lookout.net/",
         "expect_url": "http://look%E2%80%AEout.urltest.lookout.net/"
       },
       {
-        "id": "26",
+        "id": "25",
         "name": "",
         "url": "http://look\u206Bout.urltest.lookout.net/",
         "expect_url": "http://look%E2%81%ABout.urltest.lookout.net/"
       },
       {
-        "id": "27",
+        "id": "26",
         "name": "",
         "url": "http://look\uDB40\uDC01out.urltest.lookout.net/",
         "expect_url": "http://look%F3%A0%80%81out.urltest.lookout.net/"
       },
       {
-        "id": "28",
+        "id": "27",
         "name": "",
         "url": "http://look\uDB40\uDC20out.urltest.lookout.net/",
         "expect_url": "http://look%F3%A0%80%A0out.urltest.lookout.net/"
       },
       {
-        "id": "29",
+        "id": "28",
         "name": "",
         "url": "http://look\u05BEout.urltest.lookout.net/",
         "expect_url": "http://look%D6%BEout.urltest.lookout.net/"
@@ -709,23 +703,17 @@
       {
         "id": "37",
         "name": "",
-        "url": "http://urltest.lookout.net/\uDEAD/foo",
-        "expect_url": "http://urltest.lookout.net/\uFFFD/foo"
-      },
-      {
-        "id": "38",
-        "name": "",
         "url": "http://urltest.lookout.net/\uFEFF/foo",
         "expect_url": "http://urltest.lookout.net/%EF%BB%BF/foo"
       },
       {
-        "id": "39",
+        "id": "38",
         "name": "",
         "url": "http://urltest.lookout.net/\u202E/foo/\u202D/bar",
         "expect_url": "http://urltest.lookout.net/%E2%80%AE/foo/%E2%80%AD/bar"
       },
       {
-        "id": "40",
+        "id": "39",
         "name": "",
         "url": "http://urltest.lookout.net\uFF0Ffoo/",
         "expect_url": "http://urltest.lookout.net/foo/"

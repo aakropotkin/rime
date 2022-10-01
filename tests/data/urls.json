@@ -820,53 +820,47 @@
       {
         "id": "21",
         "name": "",
-        "url": "http://look\uDEADout.net/",
-        "expect_url": "http://look%ED%BA%ADout.net/"
-      },
-      {
-        "id": "22",
-        "name": "",
         "url": "http://look\uFFFAout.net/",
         "expect_url": "http://look%EF%BF%BAout.net/"
       },
       {
-        "id": "23",
+        "id": "22",
         "name": "",
         "url": "http://look\u2FF0out.net/",
         "expect_url": "http://look%E2%BF%B0out.net/"
       },
       {
-        "id": "24",
+        "id": "23",
         "name": "",
         "url": "http://look\u0341out.net/",
         "expect_url": "http://look%CD%81out.net/"
       },
       {
-        "id": "25",
+        "id": "24",
         "name": "",
         "url": "http://look\u202Eout.net/",
         "expect_url": "http://look%E2%80%AEout.net/"
       },
       {
-        "id": "26",
+        "id": "25",
         "name": "",
         "url": "http://look\u206Bout.net/",
         "expect_url": "http://look%E2%81%ABout.net/"
       },
       {
-        "id": "27",
+        "id": "26",
         "name": "",
         "url": "http://look\uDB40\uDC01out.net/",
         "expect_url": "http://look%F3%A0%80%81out.net/"
       },
       {
-        "id": "28",
+        "id": "27",
         "name": "",
         "url": "http://look\uDB40\uDC20out.net/",
         "expect_url": "http://look%F3%A0%80%A0out.net/"
       },
       {
-        "id": "29",
+        "id": "28",
         "name": "",
         "url": "http://look\u05BEout.net/",
         "expect_url": "http://look%D6%BEout.net/"
@@ -1925,23 +1919,17 @@
       {
         "id": "37",
         "name": "",
-        "url": "http://www.example.com/\uDEAD/foo",
-        "expect_url": "http://www.example.com/\uFFFD/foo"
-      },
-      {
-        "id": "38",
-        "name": "",
         "url": "http://www.example.com/\uFEFF/foo",
         "expect_url": "http://www.example.com/%EF%BB%BF/foo"
       },
       {
-        "id": "39",
+        "id": "38",
         "name": "",
         "url": "http://www.example.com/\u202E/foo/\u202D/bar",
         "expect_url": "http://www.example.com/%E2%80%AE/foo/%E2%80%AD/bar"
       },
       {
-        "id": "40",
+        "id": "38",
         "name": "",
         "url": "http://www.example.com\uFF0Ffoo/",
         "expect_url": "http://www.example.com/foo/"
