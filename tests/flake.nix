@@ -1,8 +1,6 @@
 {
 
   inputs.rime.url = "path:../.";
-  #inputs.url-testing.url = "github:cweb/url-testing";
-  #inputs.url-testing.flake = false;
 
   outputs = { self, rime, ...  } @ inputs: let
     inherit (rime) lib;
