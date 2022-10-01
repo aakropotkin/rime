@@ -71,8 +71,10 @@
     rel_uri_p  = "(${net_path_p}|${abs_path_p}|${rel_path_p})(\\?${query_p})?";
     abs_uri_p  = "${scheme_p}:(${hier_part_p}|${opaque_part_p})";
     uri_ref_p  = "(${abs_uri_p}|${rel_uri_p})?(#${fragment_p})?";
+
     flake_id_p = "[[:alpha:]][${word_c}]*";
-    rev_p      = "[[:xdigit:]]\{40\}";
+
+    git_rev_p      = "[[:xdigit:]]\{40\}";
     # Refs matching this pattern fail
     bad_git_ref_p = let
       parts = builtins.concatStringsSep "|" [
@@ -89,46 +91,55 @@
 
 # ---------------------------------------------------------------------------- #
 
-  # A git ref, such as "git:<OWNER>/<REPO>/release-v1"
-  git_ref_t = with patterns; let
-    cond = s:
-      ( lib.test patterns.maybe_git_ref_p s ) &&
-      ( ! ( lib.test patterns.bad_git_ref_p s ) );
-  in restrict "git:ref" cond string;
+  git_types = with patterns; {
+    rev = restrict "git:rev" ( lib.test git_rev_p ) string;
+    # A git ref, such as "git:<OWNER>/<REPO>/release-v1"
+    ref = let
+      cond = s:
+        ( lib.test patterns.maybe_git_ref_p s ) &&
+        ( ! ( lib.test patterns.bad_git_ref_p s ) );
+    in restrict "git:ref" cond string;
+  };
 
 
 # ---------------------------------------------------------------------------- #
 
-  scheme_t = with patterns; restrict "scheme" ( lib.test scheme_p ) string;
+  typeFromPatt = pname: let
+    name = "${lib.yank "(.*)_p" pname}_t";
+  in {
+    inherit name;
+    value = restrict name ( lib.test patterns.${pname} ) string;
+  };
 
-  #uri-path  = either uri-path-abs uri-path-opaque;
-  #uri-query = string;  # FIXME
+  uri_str_types = let
+    patts = [
+      "scheme_p" "ipv4_p" "ipv6_p" "hostname_p" "host_p" "user_p" "authority_p"
+      "query_p" "abs_path_p" "rel_path_p" "net_path_p" "fragment_p" "param_p"
+      "uri_ref_p"
+    ];
+    generated = builtins.listToAttrs ( map typeFromPatt patts );
+  in generated // {
+    uri_t = generated.uri_ref_t;
+    # FIXME: path_p
+  };
 
-
-# ---------------------------------------------------------------------------- #
-
-  #uri-part = either uri-part-hier uri-part-opaque;
-  #uri-part-hier = struct "uri:part[hier]" {
-  #  path = option ( either net-path abs-path );
-  #  query = option uri-query;
-  #};
-  #uri-part-opaque = restrict "opaque" ( lib.test "" );
-
-
-# ---------------------------------------------------------------------------- #
-
-  #uri-frag = string;
-  #uri = either abs-uri rel-uri;
-  #uri-scheme = enum [];  # FIXME
-
-  #abs-uri = struct "uri[abs]" {
-  #  scheme = uri-scheme;
-  #};
-
-  #uri-ref = struct "uri-ref" {
-  #  uri      = uri;
-  #  fragment = option uri-frag;
-  #};
+  url_t = with uri_str_types; struct "url" {
+    # scheme
+    # + ":"
+    # + (authority ? "//" + *authority : "")
+    # + path
+    # + (query.empty() ? "" : "?" + encodeQuery(query))
+    # + (fragment.empty() ? "" : "#" + percentEncode(fragment));
+    scheme = scheme_t;
+    authority = authority_t;
+    path      = eitherN [rel_path_t abs_path_t net_path_t];  # FIXME: name
+    query     = query_t;
+    fragment  = fragment_t;
+    # Meta: Extra fields.
+    url = uri_ref_t;  # full uri string.
+    # This is everything before the query part: scheme + auth + path
+    base = string;
+  };
 
 
 # ---------------------------------------------------------------------------- #
@@ -142,8 +153,9 @@ in {
     patterns
   ;
   inherit
-    scheme_t
-    git_ref_t
+    git_types
+    uri_str_types
+    url_t
   ;
 }
 
