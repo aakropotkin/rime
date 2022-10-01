@@ -43,7 +43,8 @@
 
       query         = *uric
 
-      fragment      = *uric      uric          = reserved | unreserved | escaped
+      fragment      = *uric
+      uric          = reserved | unreserved | escaped
       reserved      = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+" |
                       "$" | ","
       unreserved    = alphanum | mark
