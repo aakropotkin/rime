@@ -1,0 +1,64 @@
+name: All Tests
+on:
+  push:
+    branches:
+      -  main
+    paths:
+      - .github/workflows/all-tests.yml
+      - flake.nix
+      - tests/**
+      - types/**
+      - lib/**
+      - '!**/README*'
+      
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - .github/workflows/all-tests.yml
+      - flake.nix
+      - tests/**
+      - types/**
+      - lib/**
+      - '!**/README*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  all-tests:
+    runs-on: ubuntu-latest
+    env:
+      SYSTEM: x86_64-linux
+    steps:
+      #- uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: cachix/install-nix-action@d64e0553100205688c0fb2fa16edb0fc8663c590
+        with:
+          nix_path: nixpkgs=channel:nixpkgs-22.05
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+            substituters = https://cache.nixos.org
+            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+            max-jobs = auto
+            cores = 0
+            substitute = true
+            builders-use-substitutes = true
+            fallback = true
+            connect-timeout = 5
+            stalled-download-timeout = 90
+            timeout = 0
+            
+      - name: Setup
+        run: |
+          echo "# ============================================================================ #" >&2;
+          { printf '    bash   version: '; bash   --version|head -n1; } >&2;
+          { printf '    nix    version: '; nix    --version; } >&2;
+          echo "# ---------------------------------------------------------------------------- #" >&2;
+          # Register aliases to avoid the long ref
+          nix registry add head "github:${{ github.repository }}/$GITHUB_REF";
+
+      - name: All Tests
+        run: |
+          nix build head#tests --show-trace;
+          echo "# ---------------------------------------------------------------------------- #" >&2;
+          nix build head#tests --show-trace --impure;
