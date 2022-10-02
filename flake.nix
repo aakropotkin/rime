@@ -32,10 +32,12 @@
     # Pure `lib' extensions.
     overlays.lib = final: prev: let
       # Mostly regex patterns aside from the URI types.
-      liburi = import "${toString ./types/uri.nix}" { lib = final; };
+      re-uri    = import "${toString ./re/uri.nix}";
+      types-uri = import "${toString ./types/uri.nix}" { lib = final; };
+      liburi    = import "${toString ./lib/uri.nix}" { lib = final; };
     in {
-      inherit liburi;
-      ytypes = ( prev.ytypes or {} ) // liburi.ytypes;
+      regexps = ( prev.regexps or {} ) // { uri = re-uri; };
+      ytypes  = ( prev.ytypes or {} ) // types-uri;
     };
     # Nixpkgs overlay: Builders, Packages, Overrides, etc.
     overlays.pkgs = final: prev: let
