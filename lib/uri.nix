@@ -20,8 +20,12 @@
   # scheme
 
   UriScheme = with yt; {
+    name   = "UriScheme";
+    isType = defun [any bool] ( scheme_t.check );
+
     # string[scheme] -> attrs[scheme]
-    parse = let
+    # Parser
+    fromString = let
       inner = str: let
         splitLayers = builtins.match "(([^+]+)\\+)?([^+]+)?" str;
       in {
@@ -30,27 +34,46 @@
       };
     in defun [string Struct.scheme] inner;
 
-    # <attrs|string>[scheme] -> string
+    # <attrs|string>[scheme] -> string[scheme]
+    # Writer
     toString = let
-      inner = scheme:
-        if builtins.isString scheme then scheme else
-        if ( scheme.data or null ) == null then scheme.transport else
-        "${scheme.data}+${scheme.transport}";
+      inner = x:
+        if builtins.isString x then x else
+        if ( x.data or null ) == null then x.transport else
+        "${x.data}+${x.transport}";
     in defun [scheme_t string] inner;
 
-    # <attrs|string>[scheme] -> attrs[scheme]
+    # attrs<attrs[scheme]|string[scheme]> -> attrs[scheme](full)
+    # Deserializer
+    fromAttrs = let
+      inner = a:
+        if ( a ? scheme ) then UriScheme.mk a.scheme else
+        if ( a ? val )    then UriScheme.mk a.val else
+        { data = null; } // a;
+    in defun [(attrs any) Struct.scheme] inner;
+
+    # <attrs|string>[scheme] -> attrs[scheme](min)
+    # Serializer
     toAttrs = let
       inner = x: let
-        asAttrs = if builtins.isString x then UriScheme.parse x else x;
-      in lib.filterAttrs ( _: x: x != null ) asAttrs;
+        asAttrs = if builtins.isAttrs x then UriScheme.fromAttrs x else
+                  UriScheme.fromString x;
+      in lib.filterAttrs ( _: v: v != null ) asAttrs;
+    in defun [scheme_t Struct.scheme] inner;
+
+    # <attrs|string>[scheme] -> attrs[scheme](full)
+    mk = let
+      inner = x: UriScheme.fromAttrs ( UriScheme.toAttrs x );
     in defun [scheme_t Struct.scheme] inner;
 
     # <attrs|string>[scheme] -> object[UriScheme]
+    # "Constructor"
     __functor = self: x: {
-      _type = "UriScheme";
-      val   = self.toAttrs x;
+      _type      = "UriScheme";
+      val        = self.mk x;
       __toString = child: self.toString child.val;
       __serial   = child: self.toAttrs  child.val;
+      __vtype    = Struct.scheme;
     };
   };
 
