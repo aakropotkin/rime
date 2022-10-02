@@ -47,7 +47,7 @@
 # ---------------------------------------------------------------------------- #
 
     testUrl = url: let
-      e = builtins.tryEval ( uri_t url );
+      e = builtins.tryEval ( uri_str_t url );
       v = builtins.deepSeq e e;
     in e // { inherit url; };
     testResults = builtins.mapAttrs ( _: map self.testUrl ) self.data.urls;
@@ -71,7 +71,7 @@
       yt = lib.ytypes // lib.ytypes.uri_str_types;
     in builtins.mapAttrs ( _: t: assert t.expr == t.expected; t ) {
       testUri_t = {
-        expr     = uri_t "https://google.com";
+        expr     = uri_str_t "https://google.com";
         expected = "https://google.com";
       };
     };

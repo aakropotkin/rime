@@ -105,10 +105,17 @@
 # ---------------------------------------------------------------------------- #
 
   typeFromPatt = pname: let
-    name = "${lib.yank "(.*)_p" pname}_t";
+    bname = lib.yank "(.*)_p" pname;
+    iname = let
+      comm = "uri:${bname}";
+      paths = "uri:path:${lib.yank "([^_]+)_.*" bname}";
+      addr  = "uri:address:${bname}";
+    in if lib.hasSuffix "_path" bname then paths else
+       if lib.hasPrefix "ipv" bname then addr else
+       comm;
   in {
-    inherit name;
-    value = restrict name ( lib.test patterns.${pname} ) string;
+    name = "${bname}_str_t";
+    value = restrict iname ( lib.test patterns."${bname}_p" ) string;
   };
 
   uri_str_types = let
@@ -118,9 +125,16 @@
       "uri_ref_p"
     ];
     generated = builtins.listToAttrs ( map typeFromPatt patts );
+    uri_str_t = generated.uri_ref_str_t // { name = "string[uri]"; };
   in generated // {
-    uri_t = generated.uri_ref_t;
+    uri_ref_str_t = uri_str_t;
+    inherit uri_str_t;
     # FIXME: path_p
+    path_str_t = let
+      ei = with generated; eitherN [
+        abs_path_str_t rel_path_str_t net_path_str_t
+      ];
+    in ei // { name = "string[uri:path]"; };
   };
 
   url_t = with uri_str_types; struct "url" {
@@ -130,13 +144,13 @@
     # + path
     # + (query.empty() ? "" : "?" + encodeQuery(query))
     # + (fragment.empty() ? "" : "#" + percentEncode(fragment));
-    scheme = scheme_t;
-    authority = authority_t;
-    path      = eitherN [rel_path_t abs_path_t net_path_t];  # FIXME: name
-    query     = query_t;
-    fragment  = fragment_t;
+    scheme    = scheme_str_t;
+    authority = authority_str_t;
+    path      = path_str_t;
+    query     = query_str_t;
+    fragment  = fragment_str_t;
     # Meta: Extra fields.
-    url = uri_ref_t;  # full uri string.
+    url = uri_str_t;  # full uri string.
     # This is everything before the query part: scheme + auth + path
     base = string;
   };
