@@ -46,10 +46,12 @@
     # attrs<attrs[scheme]|string[scheme]> -> attrs[scheme](full)
     # Deserializer
     fromAttrs = let
-      inner = a:
-        if ( a ? scheme ) then UriScheme.mk a.scheme else
-        if ( a ? val )    then UriScheme.mk a.val else
-        { data = null; } // a;
+      inner = a: let
+        scheme = a.scheme or a;
+        full = if a ? transport then a else
+               if scheme ? transport then scheme else
+               assert builtins.isString scheme; UriScheme.fromString scheme;
+      in { inherit (full) transport; data = full.data or null; };
     in defun [(attrs any) Struct.scheme] inner;
 
     # <attrs|string>[scheme] -> attrs[scheme](min)
