@@ -4,10 +4,10 @@
   inputs.ak-nix.follows = "rime/ak-nix";
 
   outputs = { self, ak-nix, ...  } @ inputs: let
+    tdir = "${inputs.rime or ( toString ../. )}/tests";
     lib = ak-nix.lib.extend ( final: prev: {
-      ytypes = ( prev.ytypes or {} ) // ( import ../types/uri.nix {
-        lib = final;
-      } );
+      ytypes = ( prev.ytypes or {} ) //
+               ( import "${tdir}/../types/uri.nix" { lib = final; } );
     } );
     url-testing = toString ./data;
   in with lib.ytypes.uri_str_types; {
@@ -43,17 +43,29 @@
     groupResults = results: let
       parted = builtins.partition ( x: x.success ) results;
     in {
-      valid = map ( x: x.value ) parted.right;
+      valid   = map ( x: x.value ) parted.right;
       invalid = map ( x: x.url ) parted.wrong;
     };
     groupedResults = builtins.mapAttrs ( _: self.groupResults )
                                        self.testResults;
 
+    extraTests = let
+      yt = lib.ytypes // lib.ytypes.uri_str_types;
+    in builtins.mapAttrs ( _: t: assert t.expr == t.expected; t ) {
+      testUri_t = {
+        expr     = uri_t "https://google.com";
+        expected = "https://google.com";
+      };
+    };
+
     packages = lib.eachDefaultSystemMap ( system: let
       pkgsFor = ak-nix.inputs.nixpkgs.legacyPackages.${system};
     in {
-      tests = pkgsFor.writeText "results.json"
-        ( lib.generators.toPretty {} self.groupedResults );
+      tests = let
+        extra = builtins.deepSeq self.extraTests;
+        drv   = pkgsFor.writeText "results.json"
+                ( lib.generators.toPretty {} self.groupedResults );
+      in extra drv;
     } );
 
   };

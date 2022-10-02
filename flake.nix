@@ -45,7 +45,13 @@
     # Installable Packages for Flake CLI.
     packages = lib.eachDefaultSystemMap ( system: let
       pkgsFor = pkgsForSys system;
+      testFlake = lib.libflake.callFlake ./tests {
+        rime = self;
+        inherit ak-nix;
+        self = testFlake;
+      };
     in {
+      inherit (testFlake.packages.${system}) tests;
     } );
 
 
