@@ -18,11 +18,13 @@ let
     word_c       = alnum_c + "-";
     hex_c        = digit_c + "abcdefABCDEF";
     escaped_c    = "%" + hex_c;
-    mark_c       = "_.!~*'()-";  # XXX: be carful with the "-" in any `[...]'
+    mark_c       = "_.!~*'()-";       # XXX: be careful with "-" in any `[...]'
     unreserved_c = alnum_c + mark_c;  # XXX: mark_c
-    reserved_c   = ";/?:@&=+$,";
-    uri_c        = reserved_c + escaped_c + unreserved_c;
-    param_c      = escaped_c + ":@&=+$," + unreserved_c;  # XXX: mark_c
+    res_ns_c     = ";?:@&=+$,";
+    reserved_c   = res_ns_c + "/";
+    # These use `escaped_c' and require "pseudo character classes"
+    uri_c        = escaped_c + reserved_c + unreserved_c;
+    param_c      = escaped_c + ":@&=+$,"  + unreserved_c;  # XXX: mark_c
   };
 
   # Pseudo Character Classes
@@ -46,7 +48,7 @@ let
     in builtins.concatStringsSep "\\." [seg seg seg seg];
     ipv6_addr_p = let
       seg = "[0-9a-fA-F:]+(%[${word_c}]+)?";
-    in "([[]${seg}[]]|${seg})?";
+    in "([[]${seg}[]]|${seg})";
     top_label_p    = "[[:alpha:]]([${alnum_c}-]*[[:alnum:]])?";
     domain_label_p = "[[:alnum:]]([${alnum_c}-]*[[:alnum:]])?";
     hostname_p     = "(${domain_label_p}\\.)*${top_label_p}\\.?";
@@ -61,7 +63,7 @@ let
     rel_path_p     = "${rel_segment_p}(${abs_path_p})?";
     abs_path_p     = "/${path_segments_p}";
     net_path_p     = "//${authority_p}(${abs_path_p})?";
-    opaque_part_p  = "${uri_ns_p1}([${uri_c}])*";
+    opaque_part_p  = "${uri_ns_p1}${uri_p1}*";
     hier_part_p    = "(${net_path_p}|${abs_path_p})(\\?${query_p})?";
     rel_uri_p  = "(${net_path_p}|${abs_path_p}|${rel_path_p})(\\?${query_p})?";
     abs_uri_p  = "${scheme_p}:(${hier_part_p}|${opaque_part_p})";
