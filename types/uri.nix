@@ -137,6 +137,9 @@
     in ei // { name = "string[uri:path]"; };
   };
 
+
+# ---------------------------------------------------------------------------- #
+
   url_t = with uri_str_types; struct "url" {
     # scheme
     # + ":"
@@ -159,18 +162,18 @@
 # ---------------------------------------------------------------------------- #
 
 in {
-  yt = lib.libyants;
   inherit
-    lib
     character_classes
     pseudo_ccs
     patterns
   ;
-  inherit
-    git_types
-    uri_str_types
-    url_t
-  ;
+  ytypes = {
+    inherit
+      git_types
+      uri_str_types
+      url_t
+    ;
+  };
 }
 
 # ---------------------------------------------------------------------------- #

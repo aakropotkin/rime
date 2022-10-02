@@ -30,10 +30,12 @@
 # ---------------------------------------------------------------------------- #
 
     # Pure `lib' extensions.
-    overlays.lib = final: prev: {
-      ytypes = ( prev.ytypes or {} ) // ( import ./types/uri.nix {
-        lib = final;
-      } );
+    overlays.lib = final: prev: let
+      # Mostly regex patterns aside from the URI types.
+      liburi = import "${toString ./types/uri.nix}" { lib = final; };
+    in {
+      inherit liburi;
+      ytypes = ( prev.ytypes or {} ) // liburi.ytypes;
     };
     # Nixpkgs overlay: Builders, Packages, Overrides, etc.
     overlays.pkgs = final: prev: let

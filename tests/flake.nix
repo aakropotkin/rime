@@ -17,7 +17,7 @@
     tdir = "${inputs.rime or ( toString ../. )}/tests";
     lib = ak-nix.lib.extend ( final: prev: {
       ytypes = ( prev.ytypes or {} ) //
-               ( import "${tdir}/../types/uri.nix" { lib = final; } );
+               ( import "${tdir}/../types/uri.nix" { lib = final; } ).ytypes;
     } );
     url-testing = toString ./data;
   in with lib.ytypes.uri_str_types; {
