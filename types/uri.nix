@@ -125,11 +125,8 @@
       "uri_ref_p"
     ];
     generated = builtins.listToAttrs ( map typeFromPatt patts );
-    uri_str_t = generated.uri_ref_str_t // { name = "string[uri]"; };
-  in generated // {
-    uri_ref_str_t = uri_str_t;
-    inherit uri_str_t;
-    # FIXME: path_p
+  in ( removeAttrs generated ["uri_ref_str_t"] ) // {
+    uri_str_t  = generated.uri_ref_str_t // { name = "string[uri]"; };
     path_str_t = let
       ei = with generated; eitherN [
         abs_path_str_t rel_path_str_t net_path_str_t
@@ -140,22 +137,116 @@
 
 # ---------------------------------------------------------------------------- #
 
-  url_t = with uri_str_types; struct "url" {
-    # scheme
-    # + ":"
-    # + (authority ? "//" + *authority : "")
-    # + path
-    # + (query.empty() ? "" : "?" + encodeQuery(query))
-    # + (fragment.empty() ? "" : "#" + percentEncode(fragment));
-    scheme    = scheme_str_t;
-    authority = authority_str_t;
-    path      = path_str_t;
-    query     = query_str_t;
-    fragment  = fragment_str_t;
-    # Meta: Extra fields.
-    url = uri_str_t;  # full uri string.
-    # This is everything before the query part: scheme + auth + path
-    base = string;
+  # Scheme sub-parts as `<DATA_FORMAT>+<TRANSPORT_LAYER>', e.g. `file+https'.
+  # This technically isn't standardized but everyone uses it.
+  transport_scheme_t = let
+    noPlus = s: ! ( lib.hasInfix "+" s );
+    r = restrict "uri:scheme:transport" noPlus uri_str_types.scheme_str_t;
+  in r // {
+    __functor = self: value:
+      r.__functor self ( lib.yank "\\+?([^+]+)" value );
+  };
+
+  data_scheme_t = let
+    noPlus = s: ! ( lib.hasInfix "+" s );
+    r = restrict "uri:scheme:data" noPlus uri_str_types.scheme_str_t;
+  in r // {
+    __functor = self: value:
+      r.__functor self ( lib.yank "([^+]+)\\+?" value );
+  };
+
+
+  # The full schema.
+  # This accepts a string or attrs, but will repack as attrs in either case.
+  scheme_t = let
+    scheme_attrs = ( struct "scheme" {
+      transport = transport_scheme_t;
+      data      = option data_scheme_t;
+    } ) // { name = "attrs[schema]"; };
+    ei = either uri_str_types.scheme_str_t scheme_attrs;
+  in ei // {
+    name = "scheme";
+    __functor = self: value: let
+      result  = self.checkType value;
+      checked = if self.checkToBool result then value else
+                throw ( self.toError value result );
+      sps = builtins.match "(([^+]+)\\+)?([^+]+)?" value;
+    in ( if ( scheme_attrs.check checked ) then checked else scheme_attrs {
+      transport = transport_scheme_t ( builtins.elemAt sps 2 );
+      data      = data_scheme_t ( builtins.elemAt sps 1 );
+    } ) // { __toString = self: "${self.data}+${self.transport}"; };
+
+  };
+
+
+# ---------------------------------------------------------------------------- #
+
+  url_t = let
+    st = ( struct "url" {
+      # scheme
+      # + ":"
+      # + (authority ? "//" + *authority : "")
+      # + path
+      # + (query.empty() ? "" : "?" + encodeQuery(query))
+      # + (fragment.empty() ? "" : "#" + percentEncode(fragment));
+      scheme    = scheme_t;
+      authority = option uri_str_types.authority_str_t;
+      path      = option uri_str_types.path_str_t;  # FIXME: split to parts
+      query     = option uri_str_types.query_str_t; # FIXME: split to params
+      fragment  = option uri_str_types.fragment_str_t;
+      # Meta: Extra fields.
+      url = option uri_str_types.uri_str_t;  # full uri string.
+      # This is everything before the query part: scheme + auth + path
+      base = option string;
+    } ) // { name = "attrs[url]"; };
+    # FIXME: prelly fucked.
+    __toString = self: let
+      auth = if ( self.authority or null ) == null then "" else
+             "//${self.authority}";
+      q = if ( self.query or null ) != null then "?${self.query}" else "";
+      frag = if ( self.fragment or null ) == null then "" else
+             "#${self.fragment}";
+      mp = if ( self.path or null ) == null then "" else self.path;
+    in "${self.scheme}:${auth}${mp}${q}${frag}";
+    # Either
+    ei = either uri_str_types.uri_str_t st;
+  in ei // {
+    name = "url";
+    __functor = self: value: let
+      result  = self.checkType value;
+      checked = if self.checkToBool result then value else
+                throw ( self.toError value result );
+      sps = builtins.split "(://|[:?#])" checked;
+      # FIXME: path is using authority if the path is empty.
+      asAttrs = let
+        auth = let
+          m = builtins.match "([^/:]+)(/.*)?" ( builtins.elemAt sps 2 );
+          ma = if ( builtins.head m ) == null then {} else {
+            authority = uri_str_types.authority_str_t ( builtins.head m );
+          };
+          mp = if ( builtins.elemAt m 1 ) == null then {} else {
+            path = uri_str_types.path_str_t ( builtins.elemAt m 1 );
+          };
+        in if ( builtins.elemAt sps 1 ) != ["://"] then {
+          path = uri_str_types.path_str_t ( builtins.elemAt sps 2 );
+        } else mp // ma;
+      in if builtins.isAttrs checked then checked else st {
+        scheme = uri_str_types.scheme_str_t ( builtins.head sps );
+      } // auth;
+      postPath = let
+        m = builtins.match "[^?#]+(\\?([^#]+))?(#(.*))?" checked;
+        mq = if ( builtins.head m ) == null then {} else {
+          query = uri_str_types.query_str_t ( builtins.elemAt m 1 );
+        };
+        mf = if ( builtins.elemAt m 2 ) == null then {} else {
+          query = uri_str_types.query_str_t ( builtins.elemAt m 3 );
+        };
+      in if ( builtins.length sps ) < 4 then {} else mq // mf;
+      url = if builtins.isString checked then checked else __toString asAttrs;
+    in asAttrs // {
+      base =lib.yank "([^?]+)(\\?.*)?" url;
+      inherit __toString url;
+    };
   };
 
 
@@ -171,6 +262,7 @@ in {
     inherit
       git_types
       uri_str_types
+      scheme_t
       url_t
     ;
   };
