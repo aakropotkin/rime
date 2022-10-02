@@ -6,59 +6,55 @@
 
 { lib }: let
 
-  inherit (lib.libyants)
-    any attrs bool defun drv either eitherN enum float function int list option
-    restrict string struct sum type unit
-  ;
-
+  yt    = lib.libyants;
   pats  = lib.regexps.uri.patterns;
-  tpat' = name: pname: restrict name ( lib.test pats.${pname} ) string;
+  tpat' = name: pname: yt.restrict name ( lib.test pats.${pname} ) yt.string;
   tpat  = name: tpat' name "${name}_p";
 
 # ---------------------------------------------------------------------------- #
 
-  rev = tpat' "rev" "git_rev_p";
-  # A git ref, such as "git:<OWNER>/<REPO>/release-v1"
-  ref = let
-    cond = s: ( lib.test pats.maybe_git_ref_p s ) &&
-              ( ! ( lib.test pats.bad_git_ref_p s ) );
-  in restrict "ref" cond string;
-
-
-# ---------------------------------------------------------------------------- #
-
-  # Scheme sub-parts as `<DATA_FORMAT>+<TRANSPORT_LAYER>', e.g. `file+https'
-  # This technically isn't standardized but everyone uses it.
-  scheme = struct "scheme" {
-    transport = tpat "layer";
-    data      = option ( tpat "layer" );
+  Uri = rec {
+    Strings = rec {
+      rev = tpat' "rev" "git_rev_p";
+      # A git ref, such as "git:<OWNER>/<REPO>/release-v1"
+      ref = let
+        cond = s: ( lib.test pats.maybe_git_ref_p s ) &&
+                  ( ! ( lib.test pats.bad_git_ref_p s ) );
+      in yt.restrict "ref" cond yt.string;
+      # Scheme sub-parts as `<DATA_FORMAT>+<TRANSPORT_LAYER>', e.g. `file+https'
+      # This technically isn't standardized but everyone uses it.
+      layer     = tpat "layer";
+      transport = layer;
+      data      = layer;
+      scheme    = tpat "scheme";
+      rel_path  = tpat "rel_path";
+      abs_path  = tpat "abs_path";
+      net_path  = tpat "net_path";
+      path      = yt.eitherN [rel_path abs_path net_path];
+      authority = tpat "authority";
+      query     = tpat "query";
+      fragment  = tpat "fragment";
+    };
+    Structs = {
+      scheme = yt.struct "scheme" {
+        transport = Strings.layer;
+        data      = yt.option Strings.layer;
+      };
+      url = yt.struct "url" {
+        inherit (Structs) scheme;
+        inherit (Strings) path;
+        authority = yt.option ( tpat "authority" );
+        query     = yt.option ( tpat "query" );
+        fragment  = yt.option ( tpat "fragment" );
+      };
+    };
   };
-
-  path = eitherN ( map ( n: tpat' n "${n}_path_p" ) ["abs" "rel" "net" ] );
-
-  url = struct "url" {
-    inherit scheme path;
-    authority = option ( tpat "authority" );
-    query     = option ( tpat "query" );
-    fragment  = option ( tpat "fragment" );
-  };
-
-
-# ---------------------------------------------------------------------------- #
-
-  # Eithers
-
-  url_t    = either url ( tpat' "url" "uri_ref_p" );
-  scheme_t = either scheme ( tpat "scheme" );
 
 
 # ---------------------------------------------------------------------------- #
 
 in {
-  String = { inherit rev ref path; };
-  Struct = { inherit scheme url; };
-  Either = { url = url_t; scheme = scheme_t; };
-  inherit url_t scheme_t;
+  inherit Uri;
 }
 
 # ---------------------------------------------------------------------------- #

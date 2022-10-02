@@ -36,9 +36,8 @@
       regexps = ( prev.regexps or {} ) // {
         uri = import "${toString ./re/uri.nix}";
       };
-      ytypes = ( prev.ytypes or {} ) // {
-        uri = import "${toString ./types/uri.nix}" { lib = final; };
-      };
+      ytypes = ( prev.ytypes or {} ) //
+               ( import "${toString ./types/uri.nix}" { lib = final; } );
     };
     # Nixpkgs overlay: Builders, Packages, Overrides, etc.
     overlays.pkgs = final: prev: let
