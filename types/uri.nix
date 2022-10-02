@@ -66,7 +66,7 @@
     rel_path_p     = "${rel_segment_p}(${abs_path_p})?";
     abs_path_p     = "/${path_segments_p}";
     net_path_p     = "//${authority_p}(${abs_path_p})?";
-    opaque_part_p  = "${uri_ns_p1}(${uri_c})*";
+    opaque_part_p  = "${uri_ns_p1}([${uri_c}])*";
     hier_part_p    = "(${net_path_p}|${abs_path_p})(\\?${query_p})?";
     rel_uri_p  = "(${net_path_p}|${abs_path_p}|${rel_path_p})(\\?${query_p})?";
     abs_uri_p  = "${scheme_p}:(${hier_part_p}|${opaque_part_p})";
