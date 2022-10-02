@@ -52,7 +52,7 @@ let
     top_label_p    = "[[:alpha:]]([${alnum_c}-]*[[:alnum:]])?";
     domain_label_p = "[[:alnum:]]([${alnum_c}-]*[[:alnum:]])?";
     hostname_p     = "(${domain_label_p}\\.)*${top_label_p}\\.?";
-    host_p         = "(${hostname_p}|${ipv4_addr_p})";
+    host_p         = "(${hostname_p}|${ipv4_addr_p}|${ipv6_addr_p})";
     hostport_p     = "${host_p}(:${port_p})?";
     userinfo_p     = "(${escaped_p1}|[;:&=+$,${unreserved_c}])*";
     server_p       = "((${userinfo_p}@)?${hostport_p})?";
