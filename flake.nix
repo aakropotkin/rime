@@ -1,11 +1,18 @@
 # ============================================================================ #
 #
-# Nix CLI wrapper generator.
+# Nix CLI wrapper generator and misc utils for augmenting the use of Nix's
+# flake UX patterns.
+#
+# - URI parser and type checker written in pure Nix.
+#   + Allows you to parse URIs from Nix expressions matching Nix's builtin
+#     `parseFlakeRef' and `fetchTree' processors.
+#   + Allows registries, locks, and flake inputs to be created programmatically
+#     without using Nix's CLI directly.
 #
 # ---------------------------------------------------------------------------- #
 
 {
-  description = "A dank starter flake";
+  description = "A Nix CLI extension kit";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/master";
   inputs.ak-nix.url  = "github:aakropotkin/ak-nix/main";

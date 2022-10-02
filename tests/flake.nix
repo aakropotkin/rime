@@ -1,7 +1,17 @@
+# ============================================================================ #
+#
+#
+#
+# ---------------------------------------------------------------------------- #
+
 {
+
+  description = "Tests for rime";
 
   inputs.rime.url = "path:../.";
   inputs.ak-nix.follows = "rime/ak-nix";
+
+# ---------------------------------------------------------------------------- #
 
   outputs = { self, ak-nix, ...  } @ inputs: let
     tdir = "${inputs.rime or ( toString ../. )}/tests";
@@ -14,12 +24,11 @@
 
     inherit lib;
 
+# ---------------------------------------------------------------------------- #
+
     data = let
       urlsFromTest = group: let
-        proc = acc: x:
-          if ( x ? url ) && ( ! ( lib.test ".*<UNI>.*" x.url ) )
-          then acc ++ [x.url]
-          else acc;
+        proc = acc: x: if ( x ? url ) then acc ++ [x.url] else acc;
         lst = if builtins.isList group.test then group.test else
               builtins.attrNames group.test;
       in builtins.foldl' proc [] lst;
@@ -34,11 +43,17 @@
       urls = builtins.mapAttrs ( _: allTests ) self.data.json;
     };
 
+
+# ---------------------------------------------------------------------------- #
+
     testUrl = url: let
       e = builtins.tryEval ( uri_t url );
       v = builtins.deepSeq e e;
     in e // { inherit url; };
     testResults = builtins.mapAttrs ( _: map self.testUrl ) self.data.urls;
+
+
+# ---------------------------------------------------------------------------- #
 
     groupResults = results: let
       parted = builtins.partition ( x: x.success ) results;
@@ -49,6 +64,9 @@
     groupedResults = builtins.mapAttrs ( _: self.groupResults )
                                        self.testResults;
 
+
+# ---------------------------------------------------------------------------- #
+
     extraTests = let
       yt = lib.ytypes // lib.ytypes.uri_str_types;
     in builtins.mapAttrs ( _: t: assert t.expr == t.expected; t ) {
@@ -57,6 +75,9 @@
         expected = "https://google.com";
       };
     };
+
+
+# ---------------------------------------------------------------------------- #
 
     packages = lib.eachDefaultSystemMap ( system: let
       pkgsFor = ak-nix.inputs.nixpkgs.legacyPackages.${system};
@@ -68,6 +89,16 @@
       in extra drv;
     } );
 
-  };
+
+# ---------------------------------------------------------------------------- #
+
+  };  # End Outputs
 
 }
+
+
+# ---------------------------------------------------------------------------- #
+#
+#
+#
+# ============================================================================ #
