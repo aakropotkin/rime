@@ -16,11 +16,15 @@
   outputs = { self, ak-nix, ...  } @ inputs: let
     tdir = "${inputs.rime or ( toString ../. )}/tests";
     lib = ak-nix.lib.extend ( final: prev: {
+      regexps = ( prev.regexps or {} ) // {
+        uri = import "${tdir}/../re/uri.nix";
+      };
       ytypes = ( prev.ytypes or {} ) //
-               ( import "${tdir}/../types/uri.nix" { lib = final; } ).ytypes;
+               ( import "${tdir}/../types/uri.nix" { lib = final; } );
     } );
     url-testing = toString ./data;
-  in with lib.ytypes.uri_str_types; {
+    uri_str = lib.ytypes.uri_types.string_ts.uri;
+  in {
 
     inherit lib;
 
@@ -47,7 +51,7 @@
 # ---------------------------------------------------------------------------- #
 
     testUrl = url: let
-      e = builtins.tryEval ( uri_str_t url );
+      e = builtins.tryEval ( uri_str url );
       v = builtins.deepSeq e e;
     in e // { inherit url; };
     testResults = builtins.mapAttrs ( _: map self.testUrl ) self.data.urls;
@@ -71,7 +75,7 @@
       yt = lib.ytypes // lib.ytypes.uri_str_types;
     in builtins.mapAttrs ( _: t: assert t.expr == t.expected; t ) {
       testUri_t = {
-        expr     = uri_str_t "https://google.com";
+        expr     = uri_str "https://google.com";
         expected = "https://google.com";
       };
     };

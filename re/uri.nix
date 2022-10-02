@@ -59,6 +59,7 @@ let
     reg_name_p     = "1(${escaped_p1}|[$,;:@&=+${unreserved_c}])*";
     authority_p    = "(${server_p}|${reg_name_p})";
     scheme_p       = "[[:alpha:]][${alnum_c}+.-]*";
+    layer_p        = "[[:alpha:]][${alnum_c}.-]*";  # scheme sublayer "()+()"
     rel_segment_p  = "1(${escaped_p1}|[;@&=+$,${unreserved_c}])*";
     rel_path_p     = "${rel_segment_p}(${abs_path_p})?";
     abs_path_p     = "/${path_segments_p}";
