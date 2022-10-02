@@ -6,28 +6,53 @@
 
 { lib }: let
 
-  inherit (lib.ytypes)
-    git_types
-    uri_types
+  inherit (lib.regexps.uri) patterns;
+  inherit (lib.ytypes.uri)
+    String Either Struct
     scheme_t
     url_t
   ;
+  yt = lib.libyants;
 
-  inherit (lib.regexps.uri) patterns;
 
 # ---------------------------------------------------------------------------- #
 
   # scheme
 
-  #mkUriScheme = args: let
-  #  checked   = scheme_t args;
-  #  sps       = builtins.match "(([^+]+)\\+)?([^+]+)?" checked;
-  #  asAttrs   =
-  #    uri_types.attrs_ts.scheme {
-  #      transport = transport_scheme_t ( builtins.elemAt sps 2 );
-  #      data      = data_scheme_t ( builtins.elemAt sps 1 );
-  #    };
-  #in asAttrs // { __toString = self: "${self.data}+${self.transport}"; };
+  UriScheme = with yt; {
+    # string[scheme] -> attrs[scheme]
+    parse = let
+      inner = str: let
+        splitLayers = builtins.match "(([^+]+)\\+)?([^+]+)?" str;
+      in {
+        transport = builtins.elemAt splitLayers 2;
+        data      = builtins.elemAt splitLayers 1;
+      };
+    in defun [string Struct.scheme] inner;
+
+    # <attrs|string>[scheme] -> string
+    toString = let
+      inner = scheme:
+        if builtins.isString scheme then scheme else
+        if ( scheme.data or null ) == null then scheme.transport else
+        "${scheme.data}+${scheme.transport}";
+    in defun [scheme_t string] inner;
+
+    # <attrs|string>[scheme] -> attrs[scheme]
+    toAttrs = let
+      inner = x: let
+        asAttrs = if builtins.isString x then UriScheme.parse x else x;
+      in lib.filterAttrs ( _: x: x != null ) asAttrs;
+    in defun [scheme_t Struct.scheme] inner;
+
+    # <attrs|string>[scheme] -> object[UriScheme]
+    __functor = self: x: {
+      _type = "UriScheme";
+      val   = self.toAttrs x;
+      __toString = child: self.toString child.val;
+      __serial   = child: self.toAttrs  child.val;
+    };
+  };
 
 
 # ---------------------------------------------------------------------------- #
@@ -82,7 +107,7 @@
 
 in {
   inherit
-    #mkUriScheme
+    UriScheme
   ;
 }
 
