@@ -51,7 +51,7 @@
     in builtins.concatStringsSep "\\." [seg seg seg seg];
     ipv6_addr_p = let
       seg = "[0-9a-fA-F:]+(%[${word_c}]+)?";
-    in "(\\[${seg}\\]|${seg})?";
+    in "([[]${seg}[]]|${seg})?";
     top_label_p    = "[[:alpha:]]([${alnum_c}-]*[[:alnum:]])?";
     domain_label_p = "[[:alnum:]]([${alnum_c}-]*[[:alnum:]])?";
     hostname_p     = "(${domain_label_p}\\.)*${top_label_p}\\.?";
@@ -65,7 +65,7 @@
     rel_segment_p  = "1(${escaped_p1}|[;@&=+$,${unreserved_c}])*";
     rel_path_p     = "${rel_segment_p}(${abs_path_p})?";
     abs_path_p     = "/${path_segments_p}";
-    net_path_p     = "//${authority_p}(${abs_path_p})";
+    net_path_p     = "//${authority_p}(${abs_path_p})?";
     opaque_part_p  = "${uri_ns_p1}(${uri_c})*";
     hier_part_p    = "(${net_path_p}|${abs_path_p})(\\?${query_p})?";
     rel_uri_p  = "(${net_path_p}|${abs_path_p}|${rel_path_p})(\\?${query_p})?";

@@ -45,7 +45,8 @@
     # Installable Packages for Flake CLI.
     packages = lib.eachDefaultSystemMap ( system: let
       pkgsFor = pkgsForSys system;
-    in {} );
+    in {
+    } );
 
 
 # ---------------------------------------------------------------------------- #
