@@ -9,6 +9,7 @@
   inherit (lib.ytypes)
     git_types
     uri_str_types
+    uri_attrs_types
     scheme_t
     url_t
   ;
@@ -19,15 +20,17 @@
 
   # scheme
 
-  #__functor = self: value: let
-  #  result  = self.checkType value;
-  #  checked = if self.checkToBool result then value else
-  #            throw ( self.toError value result );
-  #  sps = builtins.match "(([^+]+)\\+)?([^+]+)?" value;
-  #in ( if ( scheme_attrs.check checked ) then checked else scheme_attrs {
-  #  transport = transport_scheme_t ( builtins.elemAt sps 2 );
-  #  data      = data_scheme_t ( builtins.elemAt sps 1 );
-  #} ) // { __toString = self: "${self.data}+${self.transport}"; };
+  mkUriScheme = args: let
+    checked   = scheme_t args;
+    sps       = builtins.match "(([^+]+)\\+)?([^+]+)?" checked;
+    asAttrs   =
+      if ( uri_attrs_types.scheme_attrs.check checked ) then checked else
+      uri_attrs_types.scheme_attrs {
+        transport = transport_scheme_t ( builtins.elemAt sps 2 );
+        data      = data_scheme_t ( builtins.elemAt sps 1 );
+      };
+  in asAttrs // { __toString = self: "${self.data}+${self.transport}"; };
+
 
 # ---------------------------------------------------------------------------- #
 
@@ -81,6 +84,7 @@
 
 in {
   inherit
+    mkUriScheme
   ;
 }
 
