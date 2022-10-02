@@ -37,7 +37,7 @@
       liburi    = import "${toString ./lib/uri.nix}" { lib = final; };
     in {
       regexps = ( prev.regexps or {} ) // { uri = re-uri; };
-      ytypes  = ( prev.ytypes or {} ) // types-uri;
+      ytypes  = ( prev.ytypes or {} ) // { uri = types-uri; };
     };
     # Nixpkgs overlay: Builders, Packages, Overrides, etc.
     overlays.pkgs = final: prev: let

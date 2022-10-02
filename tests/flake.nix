@@ -23,7 +23,7 @@
                ( import "${tdir}/../types/uri.nix" { lib = final; } );
     } );
     url-testing = toString ./data;
-    uri_str = lib.ytypes.uri_types.string_ts.uri;
+    checkUrl = lib.ytypes.url_t;
   in {
 
     inherit lib;
@@ -51,7 +51,7 @@
 # ---------------------------------------------------------------------------- #
 
     testUrl = url: let
-      e = builtins.tryEval ( uri_str url );
+      e = builtins.tryEval ( checkUrl url );
       v = builtins.deepSeq e e;
     in e // { inherit url; };
     testResults = builtins.mapAttrs ( _: map self.testUrl ) self.data.urls;
@@ -71,11 +71,9 @@
 
 # ---------------------------------------------------------------------------- #
 
-    extraTests = let
-      yt = lib.ytypes // lib.ytypes.uri_str_types;
-    in builtins.mapAttrs ( _: t: assert t.expr == t.expected; t ) {
+    extraTests = builtins.mapAttrs ( _: t: assert t.expr == t.expected; t ) {
       testUri_t = {
-        expr     = uri_str "https://google.com";
+        expr     = checkUrl "https://google.com";
         expected = "https://google.com";
       };
     };
