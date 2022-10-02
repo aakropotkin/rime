@@ -199,7 +199,6 @@
       # This is everything before the query part: scheme + auth + path
       base = option string;
     } ) // { name = "attrs[url]"; };
-    # FIXME: prelly fucked.
     __toString = self: let
       auth = if ( self.authority or null ) == null then "" else
              "//${self.authority}";
@@ -217,7 +216,6 @@
       checked = if self.checkToBool result then value else
                 throw ( self.toError value result );
       sps = builtins.split "(://|[:?#])" checked;
-      # FIXME: path is using authority if the path is empty.
       asAttrs = let
         auth = let
           m = builtins.match "([^/:]+)(/.*)?" ( builtins.elemAt sps 2 );
