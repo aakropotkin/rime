@@ -10,7 +10,7 @@ on:
       - types/**
       - lib/**
       - '!**/README*'
-      
+
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
