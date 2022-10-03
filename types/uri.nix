@@ -41,11 +41,15 @@
       opaque_part   = tpat "opaque_part";
       segment       = tpat "segment";
       path_segments = tpat "path_segments";
+      server        = tpat "server";
       userinfo      = tpat "userinfo";
       hostport      = tpat "hostport";
       host          = tpat "host";
       hostname      = tpat "hostname";
       port          = tpat "port";
+      ipv4_addr     = tpat "ipv4_addr";
+      ipv6_addr     = tpat "ipv6_addr";
+      ip_addr       = yt.either ipv6_addr ipv4_addr;
     };
     Sums = {
       uri = yt.sum "uri" {
@@ -53,8 +57,13 @@
         absolute = Strings.abs_uri;
         relative = Strings.rel_uri;
       };
+      host = yt.sum "host" { inherit (Strings) hostname ip_addr; };
     };
     Structs = {
+      hostport = yt.struct "hostport" {
+        inherit (Sums) host;
+        port = yt.option Strings.port;
+      };
       scheme = yt.struct "scheme" {
         transport = Strings.layer;
         data      = yt.option Strings.layer;

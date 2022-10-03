@@ -132,8 +132,24 @@
     # For example, `file:/usr/bar.txt' vs. `file:foo@127.0.0.1/usr/bar.txt'.
     server = yt.struct "server" {
       userinfo = yt.option uts.userinfo;
+      hostport = yt.option ut.Structs.hostport;
     };
-  in
+    inner = str: let
+      # FIXME: wont' work for IPv6 "https://[xxx:yyy:888:...]:666/foo"
+      m = builtins.match "(([^@]+)@)?([^:]+)(:([[:digit:]]*))?" str;
+      host' = builtins.elemAt m 2;
+      hp' = {
+        port = builtins.elemAt m 4;
+        host = if host' == null then null else
+               if lib.test "[[:alpha:]].*" host' then { hostname = host'; } else
+               { ip_addr = host'; };
+      };
+    in if m == null then null else ( {
+      userinfo = builtins.elemAt m 1;
+      hostport = if ( hp'.port == null ) && ( hp'.host.hostname == null )
+                 then null else hp';
+    } );
+  in defun [uts.server ( yt.option server )] inner;
 
 
 # ---------------------------------------------------------------------------- #
@@ -145,6 +161,7 @@ in {
     parseHierarchyPart
     parseNetworkPath
     parseAbsolutePath
+    parseServer
   ;
 }
 
