@@ -176,7 +176,8 @@
                   net_path.authority;
       path = if hier_part.path ? network then net_path.path.absolute else
              hier_part.path.absolute;
-      query    = parseQuery hier_part.query;
+      query = if hier_part.query == null then null else
+              parseQuery hier_part.query;
       fragment = uri_ref.fragment;
     };
   in defun [uts.uri_ref ut.Structs.url] inner;
