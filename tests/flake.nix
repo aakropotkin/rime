@@ -77,6 +77,21 @@
         expr     = checkUrl "https://google.com";
         expected = "https://google.com";
       };
+      testParseRepo = let
+        repo = "https://github.com/aakropotkin/rime.git";
+      in {
+        expr = with lib.parser;
+          parseAbsolutePath (
+            parseNetworkPath (
+              parseHierarchyPart (
+                parseAbsoluteUri (
+                  parseUriRef url
+                ).uri.absolute
+              ).part.hierarchy
+            ).path.network
+          ).path.absolute;
+        expected = ["aakropotkin" "rime.git"];
+      };
     };
 
 

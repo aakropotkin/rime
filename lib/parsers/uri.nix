@@ -122,10 +122,10 @@
     };
     inner = str: let
       m = builtins.match "(([^@]+)@)?([^:]+(:[[:digit:]]*)?)" str;
-    in if m == null then null else ( {
+    in if m == null then null else {
       userinfo = builtins.elemAt m 1;
       hostport = builtins.elemAt m 2;
-    } );
+    };
   in defun [uts.server ( yt.option server )] inner;
 
 
@@ -133,7 +133,8 @@
 
   parseHostPort = let
     inner = str: let
-      m = builtins.match "((${pats.hostname_p})|(${pats.ipv4_addr_p})|${pats.ipv6_addr_p})(:([[:digit:]]*))?" str;
+      hps = "((${pats.hostname_p})|(${pats.ipv4_addr_p})|${pats.ipv6_addr_p})";
+      m = builtins.match "${hps}(:([[:digit:]]*))?" str;
     in {
       host = lib.discr [
         { hostname = uts.hostname.check; }
@@ -147,6 +148,18 @@
 
 # ---------------------------------------------------------------------------- #
 
+  parseScheme = let
+    inner = str: let
+      m = builtins.match "(([^+]+)\\+)?([^+]+)?" str;
+    in {
+      transport = builtins.elemAt m 2;
+      data      = builtins.elemAt m 1;
+    };
+  in defun [uts.scheme ut.Structs.scheme] inner;
+
+
+# ---------------------------------------------------------------------------- #
+
 in {
   inherit
     parseUriRef
@@ -156,6 +169,7 @@ in {
     parseAbsolutePath
     parseServer
     parseHostPort
+    parseScheme
   ;
 }
 
