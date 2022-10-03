@@ -30,6 +30,9 @@
       rel_path      = tpat "rel_path";
       abs_path      = tpat "abs_path";
       net_path      = tpat "net_path";
+      # NOTE: the names "absolute/relative" are somewhat confusing because they
+      # may refer to "absolute/relative URIs", or paths.
+      # The type "path" should be renamed.
       path          = yt.either abs_path net_path;  # XXX: NOT relative!
       authority     = tpat "authority";
       query         = tpat "query";
@@ -50,15 +53,21 @@
       ipv4_addr     = tpat "ipv4_addr";
       ipv6_addr     = tpat "ipv6_addr";
       ip_addr       = yt.either ipv6_addr ipv4_addr;
-    };
+      param         = tpat "param";
+    };  # End Strings
+
     Sums = {
       uri = yt.sum "uri" {
-        # FIXME: use eithers.
         absolute = Strings.abs_uri;
         relative = Strings.rel_uri;
       };
       host = yt.sum "host" { inherit (Strings) hostname ip_addr; };
     };
+
+    Attrs = {
+      params = yt.attrs ( yt.option Strings.param );
+    };
+
     Structs = {
       hostport = yt.struct "hostport" {
         inherit (Sums) host;
@@ -71,13 +80,12 @@
       url = yt.struct "url" {
         inherit (Structs) scheme;
         inherit (Strings) path;
-        absolute  = yt.bool;
-        authority = yt.option ( tpat "authority" );
-        query     = yt.option ( tpat "query" );
-        fragment  = yt.option ( tpat "fragment" );
+        authority = yt.option Strings.authority;
+        query     = yt.option Attrs.params;
+        fragment  = yt.option Strings.fragment;
       };
     };
-  };
+  };  # End Uri
 
 
 # ---------------------------------------------------------------------------- #

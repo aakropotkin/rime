@@ -160,6 +160,43 @@
 
 # ---------------------------------------------------------------------------- #
 
+  parseFullUrl = let
+    inner = str: let
+      # { fragment, uri.absolute }
+      uri_ref = parseUriRef str;
+      # { part.hierarchy, scheme : String }
+      abs_uri = parseAbsoluteUri uri_ref.uri.absolute;
+      # { path.(absolute|network), query : String }
+      hier_part = parseHierarchyPart abs_uri.part.hierarchy;
+      # { authority, path.absolute }
+      net_path  = parseNetworkPath hier_part.path.network;
+    in {
+      scheme    = parseScheme abs_uri.scheme;
+      authority = if ! ( hier_part.path ? network ) then null else
+                  net_path.authority;
+      path = if hier_part.path ? network then net_path.path.absolute else
+             hier_part.path.absolute;
+      query    = parseQuery hier_part.query;
+      fragment = uri_ref.fragment;
+    };
+  in defun [uts.uri_ref ut.Structs.url] inner;
+
+
+# ---------------------------------------------------------------------------- #
+
+  parseQuery = let
+    inner = str: let
+      params = builtins.filter builtins.isString ( builtins.split "&" str );
+      toKv = p: let
+        m = builtins.match "([^=]+)(=([^=]*))?" p;
+      in { name  = builtins.head m; value = builtins.elemAt m 2; };
+      asAttrs = builtins.listToAttrs ( map toKv params );
+    in if str == "" then {} else asAttrs;
+  in defun [uts.query ut.Attrs.params] inner;
+
+
+# ---------------------------------------------------------------------------- #
+
 in {
   inherit
     parseUriRef
@@ -170,6 +207,8 @@ in {
     parseServer
     parseHostPort
     parseScheme
+    parseFullUrl
+    parseQuery
   ;
 }
 

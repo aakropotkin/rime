@@ -74,44 +74,17 @@
     name = "Url";
     isType = with libyants; defun [any bool] ( Url.ytype.check );
     ytype = libyants.either ut.Strings.uri ut.Structs.url;
-    X = lib.libtypes.defXTypes {
+    X = ( lib.libtypes.defXTypes {
       inherit (libyants) any;
       string = ut.Strings.uri;
       attrs  = ut.Structs.url;
       this   = Url.ytype;
     } {
-      # Parser
-      string.this = str: let
-        parseScheme = u: let
-          FIXME
-        in
-        sps = builtins.split "(://|[:?#])" str;
-        auth = let
-          m = builtins.match "([^/:]+)(/.*)?" ( builtins.elemAt sps 2 );
-          ma = if ( builtins.head m ) == null then {} else {
-            authority = builtins.head m;
-          };
-          mp = if ( builtins.elemAt m 1 ) == null then {} else {
-            path = builtins.elemAt m 1;
-          };
-        in if ( builtins.elemAt sps 1 ) != ["://"] then {
-          path = builtins.elemAt sps 2;
-        } else mp // ma;
-        postPath = let
-          m = builtins.match "[^?#]+(\\?([^#]+))?(#(.*))?" str;
-          mq = if ( builtins.head m ) == null then {} else {
-            query = builtins.elemAt m 1;
-          };
-          mf = if ( builtins.elemAt m 2 ) == null then {} else {
-            fragment = builtins.elemAt m 3;
-          };
-        in if ( builtins.length sps ) < 4 then {} else mq // mf;
-      in postPath // auth // { scheme = builtins.head sps; };
 
       # Writer
       this.string = x: let
         auth = if ( x.authority or null ) == null then "" else
-               "//${x.authority}";
+               "/${x.authority}";
         q = if ( x.query or null ) != null then "?${x.query}" else "";
         frag = if ( x.fragment or null ) == null then "" else
                "#${x.fragment}";
@@ -126,6 +99,9 @@
 
       # Coercer
       #any.this = x: null;
+    } ) // {
+      # Parser ( already wrapped with type checking )
+      string.this = lib.parser.parseFullUrl;
     };
     # Object Constructor
     __functor = self: x: {

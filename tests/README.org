@@ -1,0 +1,221 @@
+#+TITLE: Testing
+
+* Quick Start
+Run all tests:
+
+#+BEGIN_SRC shell :results output :exports both :dir ../.
+  nix build .#tests;
+  cat ./result;
+  rm ./result;
+#+END_SRC
+
+#+RESULTS:
+: PASS: all-tests
+
+** What it isn't
+This test suite is meant for testing the build infrastructue itself, not the underlying code.
+
+Code such as unit tests and integration tests for JS or TS or Go or whatever the kids are into these days belongs in those projects; not here.
+Any test data you see in this tree that is pulled from real Tulip projects is just being cached to test various parsers, processing pipelines, and builders.
+
+* Running Tests
+:PROPERTIES:
+:ID:       faa2db75-23d7-42c6-84d4-0ab8e3968f19
+:END:
+
+This test suite can be run from the top level flake, or for more active development you can run the tests inside these subdirs to avoid needlessly reloading the full flake.
+
+Tests are system dependant, so you'll need to indicate =system= somehow.
+The top level flake uses a /funkified/ attrset that can act as a record with accessible fields for each system, or as a function that accepts =system= as an argument.
+See the [[#flake-interface-for-tests][Flake Interface for Tests]] below for details.
+
+** Flake Interface for Tests
+:PROPERTIES:
+:ID:       2d76f12a-9077-4004-9995-4a871790d255
+:CUSTOM_ID: flake-interface-for-tests
+:END:
+There's two options, which the =__functor= block handles for us.
+You can access fields associated with each system, or you can pass
+=system= as an argument ( either a string or attrset will work ).
+
+The following forms are equivalent:
+
+#+BEGIN_SRC nix :results output :exports both :dir ../.
+  with ( builtins.getFlake "sarcodes" ); [
+    tests.x86_64-linux.check
+    ( tests "x86_64-linux" ).check
+    ( tests { system = "x86_64-linux"; } ).check
+  ]
+#+END_SRC
+
+#+RESULTS:
+: [ true true true ]
+
+The final example is what allows ~nix build .#tests~ to work.
+
+**** Extra Credit: Nix CLI, default args, and =__functor=
+For context, the Nix CLI commands such as ~nix build~, and any others
+which accept ~nix CMD --arg var 1 ...;~ as flags actually pass those
+to expressions as an attrset ( ~{ val = 1; }~ for example ); this
+is why a =default.nix= with fallback arguments "works", since it gets
+passed ~{}~.
+
+If you look in the =__functor= definition you'll see
+=builtins.currentSystem= is a fallback; so just when it receives ~{}~ as
+an argument it will fall back to =builtins.currentSystem=.
+
+*** "Building" all tests ( derivation )
+Produces a ~./result~ file with "PASS"/"FAIL" logs.
+Exits with non-zero code for test failures.
+Because this produces a file, the evaluation is cached, making it useful as a CI check.
+
+#+BEGIN_SRC shell :results output :exports both :dir ../.
+  nix build .#tests;
+  cat ./result;
+  rm ./result;
+#+END_SRC
+
+#+RESULTS:
+: PASS: all-tests
+
+*** Evaluate all tests ( no derivation )
+Evaluate without derivations ( cached to temporary "eval cache" for ~1 hour ).
+This is preferred for more active development.
+Change ~.#tests.<SYSTEM>~ as needed for your system.
+This is like `.#tests' but just prints to ~stderr~.
+
+#+BEGIN_SRC shell :results output :exports both :dir ../.
+  nix eval .#tests.aarch64-darwin.check;
+#+END_SRC
+
+#+RESULTS:
+: true
+
+*** View raw test results
+This dumps the "expected" and "result" values for =testFoo= which may be defined in any of the ~./tests/*/tests.nix~ subdirs.
+
+This might seem like a mess up here at the top level, but really the flake entry point is meant for "run all" or running from CI.
+
+#+BEGIN_SRC shell :results output :exports both :dir ../.
+  nix eval .#tests.aarch64-darwin.tests.testMkMetaSets;
+  nix eval --json .#tests.aarch64-darwin.tests.testNpmSys|jq;
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+{ expected = true; expr = true; }
+{
+  "expected": {
+    "aarch64-darwin": {
+      "cpu": "arm64",
+      "os": "darwin"
+    },
+    "aarch64-linux": {
+      "cpu": "arm64",
+      "os": "linux"
+    },
+    "x86_64-darwin": {
+      "cpu": "x64",
+      "os": "darwin"
+    },
+    "x86_64-linux": {
+      "cpu": "x64",
+      "os": "linux"
+    }
+  },
+  "expr": {
+    "aarch64-darwin": {
+      "cpu": "arm64",
+      "os": "darwin"
+    },
+    "aarch64-linux": {
+      "cpu": "arm64",
+      "os": "linux"
+    },
+    "x86_64-darwin": {
+      "cpu": "x64",
+      "os": "darwin"
+    },
+    "x86_64-linux": {
+      "cpu": "x64",
+      "os": "linux"
+    }
+  }
+}
+#+end_example
+
+** Legacy Interface for Tests
+"Legacy" isn't to be read as a negative here, it just refers to the "classic" Nix CLI ( no flakes ) that runs without eval caches.
+This option is nice for when we are doing active development and don't actually care if the results are cached.
+
+To run these from the CLI just add the ~nix CMD -f .;~ flag, indicating to nix to evalue ~./default.nix~ instead of search for a =flake.nix= file. You can still target specific attributes as we do with the flake, but you don't need to specify your system, and you don't need the =#= separator.
+
+*** Run a subset of tests
+Hop into the ~tests/*~ dirs and run with subsets of tests.
+#+BEGIN_SRC shell :results output :exports both :dir ../.
+  cd ./tests;
+  nix build -f .;      # Equivalent to `nix build .#tests;'
+  nix eval -f . check; # Same as the flake just for stuff under CWD.
+
+  # Limit the set of tests further by hopping into subdirs.
+  cd ./meta;
+  nix eval -f . check;
+#+END_SRC
+
+#+RESULTS:
+: true
+: true
+
+*** See raw test results
+Runs one test, printing result/expected.
+This is what I use most frequently during dev.
+Since you've already seen this example I'll spice it up a bit and show that you can keep accessing sub-attrs ( since these tests are just values ).
+
+#+BEGIN_SRC shell :results output :exports both :dir ./.
+  nix eval -f . tests.testNpmSys.expr.x86_64-linux;
+#+END_SRC
+
+#+RESULTS:
+: { cpu = "x64"; os = "linux"; }
+
+
+* Writing Tests
+The short story is that =default.nix= files exist to pass around imports and define the test runners. These utilities are provided by the flake =ak-nix=, but honestly it's honestly just a glorified "does ~a == b~?" machine.
+You only need to touch them when you're trying to pass in newly written expressions/pacakges to test suites. You can plug in alternative test driver routines to print out extra info, or pretty print if you want.
+
+The actual tests all live in =tests.nix= files and are good old fashioned "expected result" and "expression" pairs.
+
+They're unit tests like you've seen in every other language so I won't waste time here.
+The =tests= attrset is defined in each =tests.nix= file; the equals check at the bottom is just for the purposes of this example though.
+
+** An Example Test
+#+BEGIN_SRC nix :results output :exports both :dir ./.
+  let
+    tests = {
+      # *** Read this ***
+      # Test names MUST start with "test<NAME>"
+      # Similarly the `expected' and `expr' files must have those exact names.
+      testFoo = {
+
+        # The expected result.
+        expected = 420;
+
+        # The expression to check against.
+        # This is almost always a function call with test data.
+        expr = ( 4 * 10 ) + 10;
+
+      };
+    };
+  # The snippet below is a rudimentary test driver, actually very similar to our own.
+  in builtins.mapAttrs ( name: v:
+       ( v.expected == v.expr ) || ( throw "FAIL:${name}: ${toString v.expected} != ${toString v.expr}" )
+     ) tests
+#+END_SRC
+
+#+RESULTS:
+: error: FAIL:testFoo: 420 != 50
+
+The test above is expected to fail, so we'll see it appear in outputs of ~nix build .#tests~ or ~nix eval -f . check~.
+For these "checkers" we hide tests that pass, only printing "PASS".
+
+To see test output regardless of pass/fail use ~nix eval -f .test.testFoo~ to see the test case evaluated as a raw value.
