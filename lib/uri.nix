@@ -13,6 +13,7 @@
 
   pats = lib.regexps.uri.patterns;
   ut   = ytypes.Uri or ( import ../types/uri.nix { inherit lib; } );
+  inherit (libyants) defun string either;
 
 # ---------------------------------------------------------------------------- #
 
@@ -21,48 +22,42 @@
   UriScheme = {
     name   = "UriScheme";
     isType = with libyants; defun [any bool] ( UriScheme.ytype.check );
-    ytype  = libyants.either ut.Strings.scheme ut.Structs.scheme;
-    # Converters.  X.<from>.<to>
-    X = lib.libtypes.defXTypes {
-      # Type pool for conversions "<from>.<to>" ids.
-      inherit (libyants) any;
-      string = ut.String.scheme;
-      attrs  = ut.Struct.scheme;
-      this   = UriScheme.ytype;
-    } {
-      # Parser
-      string.this = str: let
-        splitLayers = builtins.match "(([^+]+)\\+)?([^+]+)?" str;
-      in {
-        transport = builtins.elemAt splitLayers 2;
-        data      = builtins.elemAt splitLayers 1;
-      };
-      # Writer
-      this.string = x:
+    ytype  = either ut.Strings.scheme ut.Structs.scheme;
+    # Parser
+    fromString = lib.parser.parseScheme;
+    # Writer
+    toString = let
+      inner = x:
         if builtins.isString x then x else
         if ( x.data or null ) == null then x.transport else
         "${x.data}+${x.transport}";
-      # Deserializer
-      attrs.this = a: let
-        scheme = a.scheme or a;
-        full = if a ? transport then a else
-               if scheme ? transport then scheme else
-               assert builtins.isString scheme; UriScheme.X.string.this scheme;
-      in { inherit (full) transport; data = full.data or null; };
-      # Serializer
-      this.attrs = x: let
-        asAttrs = if builtins.isAttrs x then UriScheme.X.attrs.this x else
-                  UriScheme.X.string.this x;
-      in lib.filterAttrs ( _: v: v != null ) asAttrs;
-      # Coercer
-      any.this = x: UriScheme.X.attrs.this ( UriScheme.X.this.attrs x );
-    };
+    in defun [UriScheme.ytype string] inner;
+    # Deserializer
+    fromAttrs = let
+      inner = a: { inherit (a) transport; data = a.data or null; };
+    in defun [( with libyants; attrs any ) ut.Structs.scheme] inner;
+    # Serializer
+    toAttrs = let
+      inner = x:
+        lib.filterAttrs ( _: v: v != null ) ( UriScheme.coerceUriScheme x );
+    in defun [UriScheme.ytype ut.Structs.scheme] inner;
+    # Coercer
+    coerceUriScheme = let
+      inner = x: let
+        t = lib.libtag.verifyTag x;
+        s = if builtins.isString x then x else
+            if t.isTag && ( t.name == "scheme" ) then t.val else ( x.val or x );
+
+      in if builtins.isString s then UriScheme.fromString s else
+         UriScheme.fromAttrs s;
+    in defun [( either string ( with libyants; attrs any ) ) ut.Structs.scheme]
+             inner;
     # Object Constructor
     __functor = self: x: {
-      _type      = "UriScheme";
-      val        = self.X.any.this x;
-      __toString = child: self.X.this.string child.val;
-      __serial   = child: self.X.this.attrs  child.val;
+      _type      = self.name;
+      val        = self.coerceUriScheme x;
+      __toString = child: self.toString child.val;
+      __serial   = child: self.toAttrs  child.val;
       __vtype    = self.ytype;
     };
   };
