@@ -32,7 +32,8 @@
     # Pure `lib' extensions.
     # Mostly regex patterns aside from the URI types.
     overlays.lib = final: prev: {
-      liburi   = import "${toString ./lib/uri.nix}" { lib = final; };
+      parser = import "${toString ./lib/parsers/uri.nix}" { lib = final; };
+      liburi = import "${toString ./lib/uri.nix}" { lib = final; };
       regexps = ( prev.regexps or {} ) // {
         uri = import "${toString ./re/uri.nix}";
       };
