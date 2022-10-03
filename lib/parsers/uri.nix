@@ -17,14 +17,6 @@
 
 # ---------------------------------------------------------------------------- #
 
-  #url = yt.struct "url" {
-  #  inherit (Structs) scheme;  { transport, data }
-  #  inherit (Strings) path;
-  #  authority = yt.option ( tpat "authority" );
-  #  query     = yt.option ( tpat "query" );
-  #  fragment  = yt.option ( tpat "fragment" );
-  #};
-
   parseUriRef = let
     uri_ref = yt.struct "uri_ref" {
       uri      = ut.Sums.uri;
@@ -62,12 +54,6 @@
       ] ( builtins.elemAt m 1 );
     };
   in defun [uts.abs_uri abs_uri] inner;
-
-
-# ---------------------------------------------------------------------------- #
-
-  # FIXME
-  parseOpaquePart = null;
 
 
 # ---------------------------------------------------------------------------- #
