@@ -132,24 +132,31 @@
     # For example, `file:/usr/bar.txt' vs. `file:foo@127.0.0.1/usr/bar.txt'.
     server = yt.struct "server" {
       userinfo = yt.option uts.userinfo;
-      hostport = yt.option ut.Structs.hostport;
+      hostport = uts.hostport;
     };
     inner = str: let
-      # FIXME: wont' work for IPv6 "https://[xxx:yyy:888:...]:666/foo"
-      m = builtins.match "(([^@]+)@)?([^:]+)(:([[:digit:]]*))?" str;
-      host' = builtins.elemAt m 2;
-      hp' = {
-        port = builtins.elemAt m 4;
-        host = if host' == null then null else
-               if lib.test "[[:alpha:]].*" host' then { hostname = host'; } else
-               { ip_addr = host'; };
-      };
+      m = builtins.match "(([^@]+)@)?([^:]+(:[[:digit:]]*)?)" str;
     in if m == null then null else ( {
       userinfo = builtins.elemAt m 1;
-      hostport = if ( hp'.port == null ) && ( hp'.host.hostname == null )
-                 then null else hp';
+      hostport = builtins.elemAt m 2;
     } );
   in defun [uts.server ( yt.option server )] inner;
+
+
+# ---------------------------------------------------------------------------- #
+
+  parseHostPort = let
+    inner = str: let
+      m = builtins.match "((${pats.hostname_p})|(${pats.ipv4_addr_p})|${pats.ipv6_addr_p})(:([[:digit:]]*))?" str;
+    in {
+      host = lib.discr [
+        { hostname = uts.hostname.check; }
+        { ip_addr  = uts.ip_addr.check; }
+      ] ( builtins.head m );
+      # Last capture is the port.
+      port = builtins.elemAt m ( ( builtins.length m ) - 1 );
+    };
+  in defun [uts.hostport ( yt.option ut.Structs.hostport )] inner;
 
 
 # ---------------------------------------------------------------------------- #
@@ -162,6 +169,7 @@ in {
     parseNetworkPath
     parseAbsolutePath
     parseServer
+    parseHostPort
   ;
 }
 
