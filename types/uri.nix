@@ -6,7 +6,7 @@
 
 { ytypes }: let
 
-  yt    = ytypes.Core;
+  yt    = ytypes // ytypes.Core // ytypes.Prim;
   pats  = ( import ../re/uri.nix ).patterns;
   tpat' = name: pname: yt.restrict name ( lib.test pats.${pname} ) yt.string;
   tpat  = name: tpat' name "${name}_p";
@@ -80,8 +80,8 @@
       };
       url = yt.struct "url" {
         inherit (Structs) scheme;
-        inherit (Strings) path;
-        authority = yt.option Strings.authority;
+        path      = yt.option Strings.path;
+        authority = yt.option Strings.authority;  # technically part of "path"
         query     = yt.option Attrs.params;
         fragment  = yt.option Strings.fragment;
       };

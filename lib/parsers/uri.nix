@@ -6,7 +6,7 @@
 
 { lib }: let
 
-  yt      = lib.libyants;
+  yt      = lib.ytypes // lib.ytypes.Core // lib.ytypes.Prim;
   regexps = import ../../re/uri.nix;
   pats    = regexps.patterns;
   ccs     = regexps.character_classes // regexps.pseudo_ccs;
@@ -175,8 +175,8 @@
       scheme    = parseScheme abs_uri.scheme;
       authority = if ! ( hier_part.path ? network ) then null else
                   net_path.authority;
-      path = if hier_part.path ? network then net_path.path.absolute else
-             hier_part.path.absolute;
+      path = if hier_part.path ? network then net_path.path.absolute or null
+             else hier_part.path.absolute;
       query = if hier_part.query == null then null else
               parseQuery hier_part.query;
       fragment = uri_ref.fragment;
