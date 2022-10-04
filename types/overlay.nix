@@ -6,10 +6,7 @@
 
 final: prev: {
 
-  Uri = import ./uri.nix {
-    ytypes = final;
-    inherit (final) libyants;
-  };
+  Uri = import ./uri.nix { ytypes = final; };
 
 }
 
