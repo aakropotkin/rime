@@ -25,9 +25,7 @@ in {
 
   liburi = callLibs [./uri.nix ./parsers/uri.nix];
 
-  ytypes = builtins.foldl' ( a: b: a // b ) ( prev.ytypes or {} ) [
-    ( callLib ../types/uri.nix )
-  ];
+  ytypes = prev.ytypes.extend ( import ../types/overlay.nix );
 
 }
 
