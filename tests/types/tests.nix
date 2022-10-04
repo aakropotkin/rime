@@ -16,8 +16,14 @@
 
 # ---------------------------------------------------------------------------- #
 
-    testUri_t = {
+    testStringTypeChecker = {
       expr     = checkUrl "https://google.com";
+      expected = "https://google.com";
+    };
+
+
+    testUriParseUnparse = {
+      expr     = toString ( lib.liburi.parseFullUrl "https://google.com" );
       expected = "https://google.com";
     };
 
