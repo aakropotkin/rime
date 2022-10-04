@@ -7,8 +7,9 @@
 { lib ? ( builtins.getFlake ( toString ../.. ) ).lib }: let
 
   yt    = lib.libyants;
-  pats  = lib.regexps.uri.patterns;
-  ccs   = lib.regexps.uri.character_classes // lib.regexps.uri.pseudo_ccs;
+  reUri = import ../../re/uri.nix;
+  pats  = reUri.patterns;
+  ccs   = reUri.character_classes // reUri.pseudo_ccs;
   tpat' = name: pname: yt.restrict name ( lib.test pats.${pname} ) yt.string;
   tpat  = name: tpat' name "${name}_p";
   ut    = lib.ytypes.Uri;
