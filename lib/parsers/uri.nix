@@ -4,16 +4,16 @@
 #
 # ---------------------------------------------------------------------------- #
 
-{ lib ? ( builtins.getFlake ( toString ../.. ) ).lib }: let
+{ lib }: let
 
-  yt    = lib.libyants;
-  reUri = import ../../re/uri.nix;
-  pats  = reUri.patterns;
-  ccs   = reUri.character_classes // reUri.pseudo_ccs;
-  tpat' = name: pname: yt.restrict name ( lib.test pats.${pname} ) yt.string;
-  tpat  = name: tpat' name "${name}_p";
-  ut    = lib.ytypes.Uri;
-  uts   = ut.Strings;
+  yt      = lib.libyants;
+  regexps = import ../../re/uri.nix;
+  pats    = regexps.patterns;
+  ccs     = regexps.character_classes // regexps.pseudo_ccs;
+  tpat'   = name: pname: yt.restrict name ( lib.test pats.${pname} ) yt.string;
+  tpat    = name: tpat' name "${name}_p";
+  ut      = lib.ytypes.Uri;
+  uts     = ut.Strings;
   inherit (yt) defun;
 
 # ---------------------------------------------------------------------------- #

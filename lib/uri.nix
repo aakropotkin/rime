@@ -4,16 +4,11 @@
 #
 # ---------------------------------------------------------------------------- #
 
-{ ytypes   ? lib.ytypes
-, libyants ? lib.libyants
-, regexps  ? lib.regexps or ( import ../re/uri.nix )
-, lib
-, ...
-}: let
+{ lib }: let
 
-  pats = lib.regexps.uri.patterns;
-  ut   = ytypes.Uri or ( import ../types/uri.nix { inherit lib; } );
-  inherit (libyants) defun string either;
+  yt = lib.libyants;
+  ut = lib.ytypes.Uri;
+  inherit (yt) defun string either;
 
 # ---------------------------------------------------------------------------- #
 
@@ -21,10 +16,10 @@
 
   UriScheme = {
     name   = "UriScheme";
-    isType = with libyants; defun [any bool] ( UriScheme.ytype.check );
+    isType = with yt; defun [any bool] ( UriScheme.ytype.check );
     ytype  = either ut.Strings.scheme ut.Structs.scheme;
     # Parser
-    fromString = lib.parser.parseScheme;
+    fromString = lib.liburi.parseScheme;
     # Writer
     toString = let
       inner = x:
@@ -35,7 +30,7 @@
     # Deserializer
     fromAttrs = let
       inner = a: { inherit (a) transport; data = a.data or null; };
-    in defun [( with libyants; attrs any ) ut.Structs.scheme] inner;
+    in defun [( with yt; attrs any ) ut.Structs.scheme] inner;
     # Serializer
     toAttrs = let
       inner = x:
@@ -49,7 +44,7 @@
             if t.isTag && ( t.name == "scheme" ) then t.val else ( x.val or x );
       in if builtins.isString s then UriScheme.fromString s else
          UriScheme.fromAttrs s;
-    in defun [( either string ( with libyants; attrs any ) ) ut.Structs.scheme]
+    in defun [( either string ( with yt; attrs any ) ) ut.Structs.scheme]
              inner;
     # Object Constructor
     __functor = self: x: {
@@ -66,8 +61,8 @@
 
   Url = {
     name = "Url";
-    isType = with libyants; defun [any bool] ( Url.ytype.check );
-    ytype = libyants.either ut.Strings.uri ut.Structs.url;
+    isType = with yt; defun [any bool] ( Url.ytype.check );
+    ytype = yt.either ut.Strings.uri ut.Structs.url;
     # Writer
     toString = let
       inner = x: let
@@ -88,7 +83,7 @@
     # Coercer
     #coerceUrl = x: null;
     # Parser ( already wrapped with type checking )
-    fromString = lib.parser.parseFullUrl;
+    fromString = lib.liburi.parseFullUrl;
     # Object Constructor
     __functor = self: x: {
       _type      = "Url";

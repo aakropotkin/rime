@@ -7,7 +7,7 @@
 { lib }: let
 
   yt    = lib.libyants;
-  pats  = lib.regexps.uri.patterns;
+  pats  = ( import ../re/uri.nix ).patterns;
   tpat' = name: pname: yt.restrict name ( lib.test pats.${pname} ) yt.string;
   tpat  = name: tpat' name "${name}_p";
 

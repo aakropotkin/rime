@@ -15,7 +15,7 @@
     testParseRepo = let
       url = "https://github.com/aakropotkin/rime.git";
     in {
-      expr = with lib.parser;
+      expr = with lib.liburi;
         parseAbsolutePath (
           parseNetworkPath (
             parseHierarchyPart (

@@ -7,7 +7,7 @@
 #
 # ---------------------------------------------------------------------------- #
 
-{ lib       ? rime.lib or nixpkgs.lib
+{ lib       ? rime.lib
 , pkgsFor   ? ( rime.legacyPackages or nixpkgs.legacyPackages ).${system}
 , writeText ? pkgsFor.writeText
 , system    ? builtins.currentSystem
