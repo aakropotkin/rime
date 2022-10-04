@@ -4,12 +4,13 @@
 #
 # ---------------------------------------------------------------------------- #
 
-{ lib }: let
+{ ytypes }: let
 
-  yt    = lib.libyants;
+  yt    = ytypes.Core;
   pats  = ( import ../re/uri.nix ).patterns;
   tpat' = name: pname: yt.restrict name ( lib.test pats.${pname} ) yt.string;
   tpat  = name: tpat' name "${name}_p";
+  lib.test = p: s: ( builtins.match p s ) != null;
 
 # ---------------------------------------------------------------------------- #
 
@@ -90,9 +91,7 @@
 
 # ---------------------------------------------------------------------------- #
 
-in {
-  inherit Uri;
-}
+in Uri
 
 # ---------------------------------------------------------------------------- #
 #
