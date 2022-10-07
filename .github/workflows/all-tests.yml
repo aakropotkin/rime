@@ -30,7 +30,6 @@ jobs:
     env:
       SYSTEM: x86_64-linux
     steps:
-      #- uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - uses: cachix/install-nix-action@d64e0553100205688c0fb2fa16edb0fc8663c590
         with:
           nix_path: nixpkgs=channel:nixpkgs-22.05
@@ -63,13 +62,11 @@ jobs:
           echo "# ---------------------------------------------------------------------------- #" >&2;
           nix build head#tests --show-trace --impure;
 
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b 
       - name: dump.sh
         run: |
-          mkdir foo head;
-          nix flake clone head --dest ./head;
-          ls */* >&2;
-          cd ../foo;
-          git init;
+          mkdir foo;
+          cd foo;
           echo '{ outputs = _: { x.y.z = 1; x.inc = i: i + 1; }' > flake.nix;
           git add ./flake.nix;
-          ../../head/src/dump.sh .#x;
+          ../src/dump.sh .#x;
