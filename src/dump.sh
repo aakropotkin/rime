@@ -5,7 +5,7 @@
 # Coerce a flake output to JSON or text.
 $NIX eval "$@" --impure --json --apply "
 i: let
-  lib  = builtin.getFlake \"nixpkgs?dir=lib\";
+  lib  = ( builtins.getFlake \"nixpkgs\" ).lib;
   filt = k: v: builtins.foldl' ( acc: b: acc && b ) true [
     ( ! ( lib.hasPrefix \"__\" k ) )
     ( ! ( builtins.isFunction v ) )
@@ -15,12 +15,11 @@ i: let
     then toString x else y;
   sro = x: y: let
     a = x.__serial x;
-    c = lib.mapAttrsRecursive ( lib.filterAttrs filt ) y;
+    c = lib.filterAttrsRecursive filt y;
   in if ! ( x ? __serial ) then c else
      if lib.isFunction x.__serial then a else
      x.__serial;
   tss = sto i ( let ma = ( sro i i ); in sto ma ma );
-  rsl = if builtins.isString tss then tss else
-        builtins.toJSON tss;
+  rsl = if builtins.isString tss then { rsl = tss; } else tss;
 in { inherit rsl; }
-"|$JQ -r '.rsl';
+"|$JQ -r '.rsl // .';
