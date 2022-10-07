@@ -67,6 +67,6 @@ jobs:
         run: |
           mkdir foo;
           cd foo;
-          echo '{ outputs = _: { x.y.z = 1; x.inc = i: i + 1; }' > flake.nix;
+          echo '{ outputs = _: { x.y.z = 1; x.inc = i: i + 1; }; }' > flake.nix;
           git add ./flake.nix;
           ../src/dump.sh .#x;
