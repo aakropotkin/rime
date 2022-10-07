@@ -66,9 +66,8 @@ jobs:
       - name: dump.sh
         run: |
           mkdir foo head;
-          cd head;
-          nix flake clone head;
-          ls >&2;
+          nix flake clone head --dest ./head;
+          ls */* >&2;
           cd ../foo;
           git init;
           echo '{ outputs = _: { x.y.z = 1; x.inc = i: i + 1; }' > flake.nix;
