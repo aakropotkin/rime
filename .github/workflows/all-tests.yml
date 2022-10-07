@@ -65,7 +65,7 @@ jobs:
 
       - name: dump.sh
         run: |
-          cat "$( nix eval --expr '${builtins.getFlake "head"}/src/dump.sh'; )" > dump.sh;
+          cat "$( nix eval --expr '\${builtins.getFlake "head"}/src/dump.sh'; )" > dump.sh;
           chmod +x ./dump.sh;
           mkdir foo;
           cd foo;
