@@ -1,7 +1,6 @@
 #! /usr/bin/env bash
 : "${NIX:=nix}";
 : "${JQ:=jq}";
-
 # Coerce a flake output to JSON or text.
 $NIX eval "$@" --impure --json --apply "
 i: let
