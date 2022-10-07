@@ -65,13 +65,12 @@ jobs:
 
       - name: dump.sh
         run: |
-          cat "$( nix eval --impure --raw --expr '
-            ( builtins.getFlake \"head\" ).outPath
-          '; )/src/dump.sh" > dump.sh;
-          chmod +x ./dump.sh;
-          mkdir foo;
-          cd foo;
+          mkdir foo head;
+          cd head;
+          nix flake clone head;
+          ls >&2;
+          cd ../foo;
           git init;
           echo '{ outputs = _: { x.y.z = 1; x.inc = i: i + 1; }' > flake.nix;
           git add ./flake.nix;
-          ../dump.sh .#x;
+          ../../head/src/dump.sh .#x;
