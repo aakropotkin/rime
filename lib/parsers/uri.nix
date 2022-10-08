@@ -200,6 +200,7 @@
 # ---------------------------------------------------------------------------- #
 
 in {
+  re = regexps.character_classes // regexps.pseudo_ccs // regexps.patterns;
   inherit
     parseUriRef
     parseAbsoluteUri
