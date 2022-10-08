@@ -17,7 +17,7 @@
 
   UriScheme = {
     name   = "UriScheme";
-    isType = with yt; defun [any bool] ( UriScheme.ytype.check );
+    isType = defun [yt.any yt.bool] ( UriScheme.ytype.check );
     ytype  = either ut.Strings.scheme ut.Structs.scheme;
     # Parser
     fromString = lib.liburi.parseScheme;
@@ -31,7 +31,7 @@
     # Deserializer
     fromAttrs = let
       inner = a: { inherit (a) transport; data = a.data or null; };
-    in defun [( with yt; attrs any ) ut.Structs.scheme] inner;
+    in defun [( yt.attrs yt.any ) ut.Structs.scheme] inner;
     # Serializer
     toAttrs = let
       inner = x:
@@ -45,7 +45,7 @@
             if t.isTag && ( t.name == "scheme" ) then t.val else ( x.val or x );
       in if builtins.isString s then UriScheme.fromString s else
          UriScheme.fromAttrs s;
-    in defun [( either string ( with yt; attrs any ) ) ut.Structs.scheme]
+    in defun [( either string ( yt.attrs yt.any ) ) ut.Structs.scheme]
              inner;
     # Object Constructor
     __functor = self: x: {
@@ -62,7 +62,7 @@
 
   Url = {
     name = "Url";
-    isType = with yt; defun [any bool] ( Url.ytype.check );
+    isType = defun [yt.any yt.bool] ( Url.ytype.check );
     ytype = either ut.Strings.uri_ref ut.Structs.url;
     # Writer
     toString = let
