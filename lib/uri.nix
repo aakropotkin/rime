@@ -6,7 +6,7 @@
 
 { lib }: let
 
-  yt = lib.ytypes.Prim;
+  yt = lib.ytypes.Prim // lib.ytypes.Core;
   ut = lib.ytypes.Uri;
   inherit (lib.ytypes.Core) defun either;
   inherit (lib.ytypes.Prim) string;
