@@ -35,10 +35,10 @@
     # Serializer
     toAttrs = let
       inner = x:
-        lib.filterAttrs ( _: v: v != null ) ( UriScheme.coerceUriScheme x );
+        lib.filterAttrs ( _: v: v != null ) ( UriScheme.coerce x );
     in defun [UriScheme.ytype ut.Structs.scheme] inner;
     # Coercer
-    coerceUriScheme = let
+    coerce = let
       inner = x: let
         t = lib.libtag.verifyTag x;
         s = if builtins.isString x then x else
@@ -50,7 +50,7 @@
     # Object Constructor
     __functor = self: x: {
       _type      = self.name;
-      val        = self.coerceUriScheme x;
+      val        = self.coerce x;
       __toString = child: self.toString child.val;
       __serial   = child: self.toAttrs  child.val;
       __vtype    = self.ytype;
@@ -84,14 +84,14 @@
 
     # Coercer
     # FIXME: use some cleanup shit from the parser to destruct the parsed trees
-    coerceUrl = x: if builtins.isString x then Url.fromString x else x;
+    coerce = x: if builtins.isString x then Url.fromString x else x;
 
     # Parser ( already wrapped with type checking )
     fromString = lib.liburi.parseFullUrl;
     # Object Constructor
     __functor = self: x: {
       _type      = self.name;
-      val        = self.coerceUrl x;
+      val        = self.coerce x;
       __toString = child: self.toString child.val;
       #__serial   = child: self.toAttrs child.val;
       __vtype    = self.ytype;
