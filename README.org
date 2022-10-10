@@ -14,3 +14,44 @@ Given that the Nix flakes interfaces revolve around URI parsing, I've defined so
 
 I initially took a shot at exposing Nix's builtin =parseFlakeRef= or =fetchTree= routines, but they were rooted in the actual fetching of flakes and trees to port as standalone routines.
 It could be done, but it's less effort for me to just write that stuff in Nix anyway and avoid fooling with plugins.
+
+** Flake Ref Types
+These YANTS types can be used to assert the validity of "flake refs", like those used as flake inputs, or arguments to =builtins.fetchTree=.
+
+#+BEGIN_SRC nix
+  nix-repl> :p map ( builtins.getFlake "github:aakropotkin/rime/main" ).lib.ytypes.FlakeRef.Structs.flake-ref-github [
+    { url = "github:aakropotkin/rime/main"; }
+    { type = "github"; url = "github:aakropotkin/rime/main"; }
+    { type = "github"; owner = "aakropotkin"; repo = "rime"; ref = "main"; }
+  ]
+  =>
+  [ { url = "github:aakropotkin/rime/main"; }
+    { type = "github"; url = "github:aakropotkin/rime/main"; }
+    { owner = "aakropotkin"; ref = "main"; repo = "rime"; type = "github"; }
+  ]
+#+END_SRC
+
+These types will =throw= on failure.
+#+BEGIN_SRC nix
+  nix-repl> lib.ytypes.FlakeRef.Structs.flake-ref-file { type = "file"; url = "file:./foo"; }
+  =>
+  { type = "file"; url = "file:./foo"; }
+
+  nix-repl> lib.ytypes.FlakeRef.Structs.flake-ref-file { type = "file"; path = "./foo"; }
+  =>
+  error: {
+           path = "./foo";
+           type = "file";
+         } does not conform to restriction 'flake-ref[file]'
+#+END_SRC
+
+*** Available Checks
+- =flake-ref= abstract form, allows any combination of fields used by children.
+- =flake-ref-indirect= an ~inputs.foo.follows = "bar";~ style ref.
+- =flake-ref-path=
+- =flake-ref-file=
+- =flake-ref-tarball=
+- =flake-ref-git=
+- =flake-ref-github=
+- =flake-ref-gitlab= ( basically an alias of =github=, not tested exhaustibly )
+- =flake-ref-mercurial= ( basically an alias of =github=, not tested exhaustibly )
