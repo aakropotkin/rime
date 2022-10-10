@@ -115,6 +115,16 @@
       in uofs && ( ! ( x ? path ) ) && ( type == "mercurial" );
     in restrict "mercurial" cond Structs.flake-ref;
 
+    flake-ref-indirect = let
+      cond = x: let
+        m    = builtins.match "(indirect)(\\+[a-z0-9])?:(.*)" x.url;
+        type = x.type or ( builtins.head m );
+        nos  = x == ( removeAttrs x ["path" "repo" "owner" "rev"] );
+        uofs = ( x ? url ) || ( x ? id ) || ( x ? follows );
+        tofl = ( x ? follows ) || ( type == "indirect" );
+      in uofs  && tofl;
+    in restrict "indirect" cond Structs.flake-ref;
+
   };
 
 
