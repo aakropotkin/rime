@@ -6,7 +6,8 @@
 
 final: prev: {
 
-  Uri = import ./uri.nix { ytypes = final; };
+  FlakeRef = import ./flake-ref.nix { ytypes = final; };
+  Uri      = import ./uri.nix { ytypes = final; };
 
 }
 
