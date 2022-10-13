@@ -17,28 +17,101 @@
       cond = lib.test "[a-zA-Z][a-zA-Z0-9_-]*";
     in restrict "flake:ref:id" cond string;
 
-    git_owner = let
-      chars = lib.test "[a-zA-Z0-9]([a-zA-Z0-9-]*[^-])?";
-      # No consecutive hyphens are allowed
-      hyphens = s: ! ( lib.test ".*--.*" s );
-      len = s: ( builtins.stringLength s ) <= 39;
-      cond = s: ( len s ) && ( chars s ) && ( hyphens s );
-    in restrict "git:owner" cond string;
+    path_ref = restrict "flake:ref[path]" ( lib.test path_ref_p ) string;
+    # NOTE: do not confuse this short name with `Git.Strings.ref'.
+    # To lib consumers this isn't ambiguous but in this file you could
+    # potentially shoot yourself in the foot.
+    git_ref = restrict "flake:ref[git]" ( lib.test git_ref_p ) string;
   };
 
 
 # ---------------------------------------------------------------------------- #
 
-  data_scheme = enum "data_scheme" [
+  # Data layer from scheme: `<DATA>+<TRANSPORT>:...'
+  data_scheme = enum "flake:ref:scheme:data" [
+    "path"     # directory
+    "tarball"  # zip, tar, tgz, tar.gz, tar.xz, tar.bz, tar.zst
+    "file"     # regular file
+    "git"      # dir-like with `.git/'
+    "hg"       # Mercurial
+  ];
+
+  # Allowed to appear in a `type = <REF-TYPE>;' for a flake input.
+  ref_type = enum "flake:ref:type" [
     "path" "tarball" "file"
-    "git" "github" "gitlab" "mercurial"
+    "git" "github" "sourcehut"
+    "mercurial"
     "indirect"
   ];
+
+
+# ---------------------------------------------------------------------------- #
+
+  ref_attrs_any = {
+    dir     = option string;  # Not actually a path.
+    narHash = option yt.Strings.sha256_sri;
+  };
+
+  ref_attrs_common = {
+   rev = option yt.Git.Strings.rev;
+   ref = option yt.Git.Strings.ref;
+  };
+
+  ref_attrs_locked = {
+    revCount     = int; # Git/Mercurial
+    lastModified = int; # Any
+  };
+
+
+# ---------------------------------------------------------------------------- #
+
+  # Allowed to be an absolute or relative path.
+  path_ref_p = "(path:)?([^:?]*)(\\?(.*))?";
+  tryParsePathRef = s: let
+    m = builtins.match path_ref_p s;
+    p = builtins.elemAt m 1;
+  in if m == null then null else {
+    type   = "path";
+    path   = if p == "" then "." else if p == "./." then "." else p;
+    params = builtins.elemAt m 3;
+  };
+
+  # FIXME: return type
+  parsePathRef =
+    yt.defun [Strings.path_ref ( yt.attrs yt.any )] tryParsePathRef;
+
+
+# ---------------------------------------------------------------------------- #
+
+  # A rough parse largely aimed at identifying the scheme.
+  git_ref_p = "(git(\\+(https?|ssh|git|file))?):(//[^/]+)?(/[^?]+)(\\?(.*))?";
+  tryParseGitRef = s: let
+    m  = builtins.match git_ref_p s;
+    u  = lib.test "git://[^@]+@.*" s;
+    t  = builtins.elemAt m 2;
+    tf = if u then "ssh" else "https";
+  in if m == null then null else {
+    type      = "git";
+    transport = if ( t == null ) then tf else t;
+    server    = builtins.elemAt m 3;
+    path      = builtins.elemAt m 4;
+    params    = builtins.elemAt m 6;
+  };
+
+  # FIXME: return type
+  parseGitRef =
+    yt.defun [Strings.git_ref ( yt.attrs yt.any )] tryParseGitRef;
+
+
+# ---------------------------------------------------------------------------- #
+
+
+
 
 # ---------------------------------------------------------------------------- #
 
   Structs = {
-    flake-ref = struct "flake-ref" {
+    flake-ref = struct "flake:ref" {
       type         = option data_scheme;  # must be inferred if omitted
       id           = option Strings.id;
       dir          = option string;  # Not actually a path.
@@ -49,9 +122,9 @@
       url          = option yt.Uri.Strings.uri_ref;
       # Dependent on `type'
       path         = option string;  # Again, not really a path.
-      owner        = option Strings.git_owner;
+      owner        = option yt.Git.Strings.owner;
       repo         = option string;
-      rev          = option yt.Uri.Strings.rev;
+      rev          = option yt.Git.Strings.rev;
       ref          = option string;
     };
 
@@ -90,6 +163,7 @@
       in ( x ? url ) && ( type == "git" );
     in restrict "git" cond Structs.flake-ref;
 
+    # FIXME: `rev-or-ref' differs from `git' requirement
     flake-ref-github = let
       cond = x: let
         m    = builtins.match "(github)(\\+[a-z0-9])?:(.*)" x.url;
@@ -98,19 +172,18 @@
       in uofs && ( ! ( x ? path ) ) && ( type == "github" );
     in restrict "github" cond Structs.flake-ref;
 
-    flake-ref-gitlab = let
+    flake-ref-sourcehut = let
       cond = x: let
-        m    = builtins.match "(gitlab)(\\+[a-z0-9])?:(.*)" x.url;
+        m    = builtins.match "(sourcehut):(.*)" x.url;
         type = x.type or ( builtins.head m );
         uofs = ( x ? url ) || ( ( x ? owner ) && ( x ? repo ) );
-      in uofs && ( ! ( x ? path ) ) && ( type == "gitlab" );
-    in restrict "gitlab" cond Structs.flake-ref;
+      in uofs && ( ! ( x ? path ) ) && ( type == "sourcehut" );
+    in restrict "sourcehut" cond Structs.flake-ref;
 
-    # XXX: no idea if this is right
     flake-ref-mercurial = let
       cond = x: let
-        m    = builtins.match "(mercurial)(\\+[a-z0-9])?:(.*)" x.url;
-        type = x.type or ( builtins.head m );
+        m    = builtins.match "(hg)(\\+[a-z0-9])?:(.*)" x.url;
+        type = x.type or ( assert ( builtins.head m ) == "hg"; "mercurial" );
         uofs = ( x ? url ) || ( ( x ? owner ) && ( x ? repo ) );
       in uofs && ( ! ( x ? path ) ) && ( type == "mercurial" );
     in restrict "mercurial" cond Structs.flake-ref;
@@ -131,10 +204,15 @@
 # ---------------------------------------------------------------------------- #
 
 in {
+  inherit Strings Structs;
+  Enums = { inherit data_scheme ref_type; };
+  # FIXME: move to lib
+  re = { inherit path_ref_p git_ref_p; };
   inherit
-    data_scheme
-    Strings
-    Structs
+    tryParsePathRef
+    parsePathRef
+    tryParseGitRef
+    parseGitRef
   ;
 }
 

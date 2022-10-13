@@ -1,6 +1,6 @@
 # ============================================================================ #
 #
-# General tests for `parser' routines.
+# General tests for YANTS types.
 #
 # ---------------------------------------------------------------------------- #
 
@@ -8,7 +8,7 @@
 
 # ---------------------------------------------------------------------------- #
 
-  checkUrl = lib.ytypes.Uri.Strings.uri_ref.check;
+  yt = lib.ytypes;
 
 # ---------------------------------------------------------------------------- #
 
@@ -16,15 +16,19 @@
 
 # ---------------------------------------------------------------------------- #
 
-    testStringTypeChecker = {
-      expr     = checkUrl "https://google.com";
-      expected = "https://google.com";
+    testGitRef_0 = {
+      expr     = builtins.tryEval ( yt.Git.ref "foo" );
+      expected = { success = true; value = "foo"; };
     };
 
+    testGitRef_1 = {
+      expr     = builtins.tryEval ( yt.Git.ref "foo/" );
+      expected = { success = false; value = false; };
+    };
 
-    testUriParseUnparse = {
-      expr     = toString ( lib.liburi.parseFullUrl "https://google.com" );
-      expected = "https://google.com";
+    testGitRef_2 = {
+      expr     = builtins.tryEval ( yt.Git.ref "foo/bar" );
+      expected = { success = true; value = "foo/bar"; };
     };
 
 

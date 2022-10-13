@@ -71,19 +71,6 @@ let
     uri_ref_p  = "(${abs_uri_p}|${rel_uri_p})?(#${fragment_p})?";
 
     flake_id_p = "[[:alpha:]][${word_c}]*";
-
-    git_rev_p      = "[[:xdigit:]]\{40\}";
-    # Refs matching this pattern fail
-    bad_git_ref_p = let
-      parts = builtins.concatStringsSep "|" [
-        "//" "/\\." "\\.\\." "[[:cntrl:]]" "[[:space:]]" "[:?^~[]"
-        "\\\\" "\\*" "\\.lock/" "@\\{"
-      ];
-    in builtins.concatStringsSep "|" [
-      "[./].*" ".*\\.lock" ".*[/.]" "@" "" ".*(${parts}).*"
-    ];
-    # Git Revs must match this, and not match `bad_git_ref_p'
-    maybe_git_ref_p = "[[:alnum:]][a-zA-Z0-9_.\\/-]*";
   };
 
 

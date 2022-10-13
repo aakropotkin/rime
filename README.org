@@ -53,5 +53,5 @@ These types will =throw= on failure.
 - =flake-ref-tarball=
 - =flake-ref-git=
 - =flake-ref-github=
-- =flake-ref-gitlab= ( basically an alias of =github=, not tested exhaustibly )
+- =flake-ref-sourcehut= ( basically an alias of =github=, not tested exhaustibly )
 - =flake-ref-mercurial= ( basically an alias of =github=, not tested exhaustibly )
