@@ -207,7 +207,7 @@ in {
   inherit Strings Structs;
   Enums = { inherit data_scheme ref_type; };
   # FIXME: move to lib
-  re = { inherit path_ref_p git_ref_p; };
+  RE = { inherit path_ref_p git_ref_p; };
   inherit
     tryParsePathRef
     parsePathRef

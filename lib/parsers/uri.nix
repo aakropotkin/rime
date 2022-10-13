@@ -6,23 +6,14 @@
 
 { lib }: let
 
-  yt      = lib.ytypes // lib.ytypes.Core // lib.ytypes.Prim;
-  regexps = import ../../re/uri.nix;
-  pats    = regexps.patterns;
-  ccs     = regexps.character_classes // regexps.pseudo_ccs;
-  tpat'   = name: pname: yt.restrict name ( lib.test pats.${pname} ) yt.string;
-  tpat    = name: tpat' name "${name}_p";
-  ut      = lib.ytypes.Uri;
-  uts     = ut.Strings;
+  yt   = lib.ytypes // lib.ytypes.Core // lib.ytypes.Prim;
+  uts  = yt.Uri.Strings;
+  pats = yt.Uri.RE;
   inherit (yt) defun;
 
 # ---------------------------------------------------------------------------- #
 
   parseUriRef = let
-    uri_ref = yt.struct "uri_ref" {
-      uri      = ut.Sums.uri;
-      fragment = yt.option ( tpat "fragment" );
-    };
     inner = str: let
       m = builtins.match "([^#]+)(#(.*))?" str;
     in {
@@ -32,19 +23,12 @@
       ] ( builtins.head m );
       fragment = builtins.elemAt m 2;
     };
-  in defun [uts.uri_ref uri_ref] inner;
+  in defun [uts.uri_ref yt.Uri.Structs.uri_ref] inner;
 
 
 # ---------------------------------------------------------------------------- #
 
   parseAbsoluteUri = let
-    abs_uri = yt.struct "abs_uri" {
-      scheme = uts.scheme;
-      part   = yt.sum "part" {
-        hierarchy = uts.hier_part;
-        opaque    = uts.opaque_part;
-      };
-    };
     inner = str: let
       m = builtins.match "(${pats.scheme_p}):(.*)" str;
     in {
@@ -54,19 +38,12 @@
         { opaque    = uts.opaque_part.check; }
       ] ( builtins.elemAt m 1 );
     };
-  in defun [uts.abs_uri abs_uri] inner;
+  in defun [uts.abs_uri yt.Uri.Structs.abs_uri] inner;
 
 
 # ---------------------------------------------------------------------------- #
 
   parseHierarchyPart = let
-    hier_part = yt.struct "hier_part" {
-      path = yt.sum "hier_path" {
-        absolute = uts.abs_path;
-        network  = uts.net_path;
-      };
-      query = yt.option uts.query;
-    };
     inner = str: let
       m = builtins.match "([^?]+)(\\?(.*))?" str;
     in {
@@ -76,16 +53,12 @@
         { absolute = uts.abs_path.check; }
       ] ( builtins.head m );
     };
-  in defun [uts.hier_part hier_part] inner;
+  in defun [uts.hier_part yt.Uri.Structs.hier_part] inner;
 
 
 # ---------------------------------------------------------------------------- #
 
   parseNetworkPath = let
-    net_path = yt.struct "net_path" {
-      authority = uts.authority;
-      path = yt.option ( yt.sum { absolute = uts.abs_path; } );
-    };
     inner = str: let
       m = builtins.match "//([^/]+)(/.*)?" str;
       p  = builtins.elemAt m 1;
@@ -94,7 +67,7 @@
       authority = builtins.head m;
       path = pa;
     };
-  in defun [uts.net_path net_path] inner;
+  in defun [uts.net_path yt.Uri.Structs.net_path] inner;
 
 
 # ---------------------------------------------------------------------------- #
@@ -117,17 +90,13 @@
   parseServer = let
     # NOTE: server may be omitted completely, implying localhost.
     # For example, `file:/usr/bar.txt' vs. `file:foo@127.0.0.1/usr/bar.txt'.
-    server = yt.struct "server" {
-      userinfo = yt.option uts.userinfo;
-      hostport = uts.hostport;
-    };
     inner = str: let
       m = builtins.match "(([^@]+)@)?([^:]+(:[[:digit:]]*)?)" str;
     in if m == null then null else {
       userinfo = builtins.elemAt m 1;
       hostport = builtins.elemAt m 2;
     };
-  in defun [uts.server ( yt.option server )] inner;
+  in defun [uts.server ( yt.option yt.Uri.Structs.server )] inner;
 
 
 # ---------------------------------------------------------------------------- #
@@ -144,7 +113,7 @@
       # Last capture is the port.
       port = builtins.elemAt m ( ( builtins.length m ) - 1 );
     };
-  in defun [uts.hostport ( yt.option ut.Structs.hostport )] inner;
+  in defun [uts.hostport ( yt.option yt.Uri.Structs.hostport )] inner;
 
 
 # ---------------------------------------------------------------------------- #
@@ -156,7 +125,7 @@
       transport = builtins.elemAt m 2;
       data      = builtins.elemAt m 1;
     };
-  in defun [uts.scheme ut.Structs.scheme] inner;
+  in defun [uts.scheme yt.Uri.Structs.scheme] inner;
 
 
 # ---------------------------------------------------------------------------- #
@@ -181,7 +150,7 @@
               parseQuery hier_part.query;
       fragment = uri_ref.fragment;
     };
-  in defun [uts.uri_ref ut.Structs.url] inner;
+  in defun [uts.uri_ref yt.Uri.Structs.url] inner;
 
 
 # ---------------------------------------------------------------------------- #
@@ -194,13 +163,12 @@
       in { name  = builtins.head m; value = builtins.elemAt m 2; };
       asAttrs = builtins.listToAttrs ( map toKv params );
     in if str == "" then {} else asAttrs;
-  in defun [uts.query ut.Attrs.params] inner;
+  in defun [uts.query yt.Uri.Attrs.params] inner;
 
 
 # ---------------------------------------------------------------------------- #
 
 in {
-  re = regexps.character_classes // regexps.pseudo_ccs // regexps.patterns;
   inherit
     parseUriRef
     parseAbsoluteUri

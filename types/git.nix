@@ -13,7 +13,7 @@
 # ---------------------------------------------------------------------------- #
 
   # A sha1 hash
-  re.rev_p = "[[:xdigit:]]\{40\}";
+  RE.rev_p = "[[:xdigit:]]\{40\}";
 
   Strings = {
     owner = let
@@ -24,14 +24,14 @@
       cond = s: ( len s ) && ( chars s ) && ( hyphens s );
     in yt.restrict "git:owner" cond yt.string;
 
-    rev = yt.restrict "git:rev" ( lib.test re.rev_p ) yt.string;
+    rev = yt.restrict "git:rev" ( lib.test RE.rev_p ) yt.string;
   };
 
 # ---------------------------------------------------------------------------- #
 
 in {
   Strings = Strings // GitRef.Strings;
-  re      = re // GitRef.re;
+  RE      = RE // GitRef.RE;
   inherit (GitRef)
     Eithers
     tryParseRef

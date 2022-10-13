@@ -77,10 +77,4 @@ let
 
 # ---------------------------------------------------------------------------- #
 
-in {
-  inherit
-    character_classes
-    pseudo_ccs
-    patterns
-  ;
-}
+in character_classes // pseudo_ccs // patterns

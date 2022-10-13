@@ -31,29 +31,26 @@
 
 { ytypes }: let
 
-  yt = ytypes.Core // ytypes.Prim;
+  yt       = ytypes.Core // ytypes.Prim;
   lib.test = patt: s: ( builtins.match patt s ) != null;
 
 # ---------------------------------------------------------------------------- #
 
-
-
-
-  re = {
+  RE = {
     ref_chars_nc = "[~:^?*\\[:cntrl:][:space:]";
-    ref_chars_p1 = "[^/${re.ref_chars_nc}]";
-    ref_chars_n1 = "[^/.${re.ref_chars_nc}]";  # No slash or dot
+    ref_chars_p1 = "[^/${RE.ref_chars_nc}]";
+    ref_chars_n1 = "[^/.${RE.ref_chars_nc}]";  # No slash or dot
     # ref component must match:
     ref_component_p =
-      "${re.ref_chars_n1}((${re.ref_chars_p1})*${re.ref_chars_p1})?";
+      "${RE.ref_chars_n1}((${RE.ref_chars_p1})*${RE.ref_chars_p1})?";
     # ref component must not match:
     ref_component_np = "(.*(@\\{|\\.\\.).*|.*\\.lock|@)";
 
     # Ref is a series of slash separated components
     ref_p =
-      "${re.ref_component_p}/${re.ref_component_p}(/${re.ref_component_p})*";
+      "${RE.ref_component_p}/${RE.ref_component_p}(/${RE.ref_component_p})*";
     ref_np =
-      "${re.ref_component_np}/${re.ref_component_np}(/${re.ref_component_np})*";
+      "${RE.ref_component_np}/${RE.ref_component_np}(/${RE.ref_component_np})*";
 
   };
 
@@ -62,12 +59,12 @@
 
   Strings = {
     ref_component = let
-      cond = s: ( lib.test re.ref_component_p s ) &&
-                ( ! ( lib.test re.ref_component_np s ) );
+      cond = s: ( lib.test RE.ref_component_p s ) &&
+                ( ! ( lib.test RE.ref_component_np s ) );
     in yt.restrict "git:ref:component" cond yt.string;
 
     ref_strict = let
-      cond = s: ( lib.test re.ref_p s ) && ( ! ( lib.test re.ref_np s ) );
+      cond = s: ( lib.test RE.ref_p s ) && ( ! ( lib.test RE.ref_np s ) );
     in yt.restrict "git:ref" cond yt.string;
   };
 
@@ -93,7 +90,7 @@
 # ---------------------------------------------------------------------------- #
 
 in {
-  inherit re Strings Eithers;
+  inherit RE Strings Eithers;
   inherit
     tryParseRef
     parseRef
