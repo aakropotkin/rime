@@ -17,7 +17,7 @@
 
   UriScheme = {
     name   = "UriScheme";
-    isType = defun [yt.any yt.bool] ( UriScheme.ytype.check );
+    isType = defun [yt.any yt.bool] UriScheme.ytype.check;
     ytype  = either ut.Strings.scheme ut.Structs.scheme;
     # Parser
     fromString = lib.liburi.parseScheme;
@@ -62,7 +62,7 @@
 
   Url = {
     name = "Url";
-    isType = defun [yt.any yt.bool] ( Url.ytype.check );
+    isType = defun [yt.any yt.bool] Url.ytype.check;
     ytype = either ut.Strings.uri_ref ut.Structs.url;
     # Writer
     toString = let

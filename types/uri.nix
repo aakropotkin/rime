@@ -7,7 +7,7 @@
 { ytypes }: let
 
   yt    = ytypes // ytypes.Core // ytypes.Prim;
-  RE    = ( import ../re/uri.nix );
+  RE    = import ../re/uri.nix;
   tpat' = name: pname:
     assert lib.test ".*_p" pname;
     yt.restrict name ( lib.test RE.${pname} ) yt.string;
@@ -101,11 +101,11 @@
     # "anon" is the presumed user if unspecified.`
     server = yt.struct "server" {
       userinfo = yt.option Strings.userinfo;
-      hostport = Strings.hostport;
+      inherit (Strings) hostport;
     };
 
     net_path = yt.struct "net_path" {
-      authority = Strings.authority;
+      inherit (Strings) authority;
       path = yt.option ( yt.sum { absolute = Strings.abs_path; } );
     };
 
@@ -118,15 +118,15 @@
     };
 
     abs_uri = yt.struct "abs_uri" {
-      scheme = Strings.scheme;
-      part   = yt.sum "part" {
+      inherit (Strings) scheme;
+      part = yt.sum "part" {
         hierarchy = Strings.hier_part;
         opaque    = Strings.opaque_part;
       };
     };
 
     uri_ref = yt.struct "uri_ref" {
-      uri      = Sums.uri;
+      inherit (Sums) uri;
       fragment = yt.option ( tpat "fragment" );
     };
 
@@ -137,9 +137,8 @@
 
 in {
   inherit RE Strings Sums Eithers Attrs Structs;
-  uri   = Sums.uri;
-  host  = Sums.host;
-  query = Eithers.query;
+  inherit (Sums) host uri;
+  inherit (Eithers) query;
 }
 
 # ---------------------------------------------------------------------------- #

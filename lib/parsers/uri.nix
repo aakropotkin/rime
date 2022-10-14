@@ -148,7 +148,7 @@
              else hier_part.path.absolute;
       query = if hier_part.query == null then null else
               parseQuery hier_part.query;
-      fragment = uri_ref.fragment;
+      inherit (uri_ref) fragment;
     };
   in defun [uts.uri_ref yt.Uri.Structs.url] inner;
 

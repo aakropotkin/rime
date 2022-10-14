@@ -9,13 +9,13 @@ final: prev: let
 # ---------------------------------------------------------------------------- #
 
   callLibWith = { lib ? final, ... } @ autoArgs: x: let
-    f = if prev.isFunction x then x else import x;
+    f    = if prev.isFunction x then x else import x;
     args = builtins.intersectAttrs ( builtins.functionArgs f )
-                                    ( { inherit lib; } // autoArgs );
+                                   ( { inherit lib; } // autoArgs );
   in f args;
-  callLib = callLibWith {};
-  callLibsWith = autoArgs: lst:
-    builtins.foldl' ( acc: x: acc // ( callLibWith autoArgs x ) ) {} lst;
+  callLib      = callLibWith {};
+  callLibsWith = autoArgs:
+    builtins.foldl' ( acc: x: acc // ( callLibWith autoArgs x ) ) {};
   callLibs = callLibsWith {};
 
 

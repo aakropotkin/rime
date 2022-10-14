@@ -41,7 +41,7 @@ in {
   ;
 
   inherit (Strings) owner rev;
-  ref = GitRef.Eithers.ref;
+  inherit (GitRef.Eithers) ref;
 }
 
 
