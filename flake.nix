@@ -21,7 +21,7 @@
 # ---------------------------------------------------------------------------- #
 
   outputs = { self, nixpkgs, ak-nix, ... } @ inputs: let
-    lib        = ak-nix.lib.extend self.overlays.lib;
+    lib        = ak-nix.lib.extend self.libOverlays.default;
     pkgsForSys = system: nixpkgs.legacyPackages.${system};
   in {  # Begin Outputs
 
@@ -31,8 +31,8 @@
 
     # Pure `lib' extensions.
     # Mostly regex patterns aside from the URI types.
-    overlays.lib    = import ./lib/overlay.nix;
-    overlays.ytypes = import ./types/overlay.nix;
+    libOverlays.default = import ./lib/libOverlay.nix;
+    ytOverlays.default  = import ./types/ytOverlay.nix;
   
     # Nixpkgs overlay: Builders, Packages, Overrides, etc.
     overlays.pkgs = final: prev: let
@@ -41,7 +41,7 @@
       callPackages     = callPackagesWith {};
       callPackage      = callPackageWith {};
     in {
-      lib = prev.lib.extend self.overlays.lib;
+      lib = prev.lib.extend self.libOverlays.default;
     };
     overlays.default = self.overlays.pkgs;
 

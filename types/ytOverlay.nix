@@ -1,15 +1,14 @@
 # ============================================================================ #
 #
-#
+# Nixpkgs Overlay.
+# Adds Several `lib.ytypes'.
 #
 # ---------------------------------------------------------------------------- #
 
 final: prev: {
-
   FlakeRef = import ./flake-ref.nix { ytypes = final; };
   Uri      = import ./uri.nix       { ytypes = final; };
   Git      = import ./git.nix       { ytypes = final; };
-
 }
 
 

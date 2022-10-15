@@ -1,1 +1,1 @@
-{ lib }: lib.extend ( import ./overlay.nix )
+{ lib }: lib.extend ( import ./libOverlay.nix )
