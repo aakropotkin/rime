@@ -21,38 +21,47 @@
 # ---------------------------------------------------------------------------- #
 
   outputs = { self, nixpkgs, ak-nix, ... } @ inputs: let
-    lib        = ak-nix.lib.extend self.libOverlays.default;
-    pkgsForSys = system: nixpkgs.legacyPackages.${system};
-  in {  # Begin Outputs
-
-    inherit lib;
 
 # ---------------------------------------------------------------------------- #
 
     # Pure `lib' extensions.
     # Mostly regex patterns aside from the URI types.
+    libOverlays.deps    = ak-nix.libOverlays.default;
     libOverlays.rime    = import ./lib/overlay.lib.nix;
-    libOverlays.default = import ./lib/overlay.lib.nix;
-    ytOverlays.rime     = import ./types/overlay.yt.nix;
-    ytOverlays.default  = import ./types/overlay.yt.nix;
-  
-    # Nixpkgs overlay: Builders, Packages, Overrides, etc.
-    overlays.rime = final: prev: let
-      callPackagesWith = auto: prev.lib.callPackagesWith ( final // auto );
-      callPackageWith  = auto: prev.lib.callPackageWith ( final // auto );
-      callPackages     = callPackagesWith {};
-      callPackage      = callPackageWith {};
-    in {
-      lib = prev.lib.extend self.libOverlays.default;
-    };
-    overlays.default = self.overlays.rime;
+    libOverlays.default = nixpkgs.lib.composeExtensions libOverlays.deps
+                                                        libOverlays.rime;
+
+    # type extensions provided standale.
+    # NOTE: these are included in `libOverlays` already 
+    # and the only reason to pay attention to use these is for deep overrides. 
+    # Practically speaking you should ignore these unless you were in a
+    # situation where you were considering vendoring a copy of the typedefs
+    # in another project.
+    ytOverlays.deps    = ak-nix ytOverlays.default;
+    ytOverlays.rime    = import ./types/overlay.yt.nix;
+    ytOverlays.default = nixpkgs.lib.composeExtensions ytOverlays.deps
+                                                       ytOverlays.rime;
 
 
 # ---------------------------------------------------------------------------- #
 
+    # Nixpkgs overlay: Builders, Packages, Overrides, etc.
+    overlays.rime = final: prev: {
+      lib = prev.lib.extend libOverlays.default;
+    };
+    overlays.deps    = ak-nix.overlays.default;
+    overlays.default = lib.composeExtensions overlays.deps overlays.rime;
+
+
+# ---------------------------------------------------------------------------- #
+ 
+in {  # Begin Outputs
+    
+# ---------------------------------------------------------------------------- #
+
     # Installable Packages for Flake CLI.
     packages = lib.eachDefaultSystemMap ( system: let
-      pkgsFor = pkgsForSys system;
+      pkgsFor   = nixpkgs.legacyPackages.${system}.extend overlays.rime;
       testSuite = pkgsFor.callPackages ./tests { inherit lib; };
     in {
       tests = testSuite.checkDrv;
