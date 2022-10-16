@@ -50,7 +50,8 @@
       lib = prev.lib.extend libOverlays.default;
     };
     overlays.deps    = ak-nix.overlays.default;
-    overlays.default = prev.lib.composeExtensions overlays.deps overlays.rime;
+    overlays.default = nixpkgs.lib.composeExtensions overlays.deps
+                                                     overlays.rime;
 
 
 # ---------------------------------------------------------------------------- #
