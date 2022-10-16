@@ -46,10 +46,10 @@
 # ---------------------------------------------------------------------------- #
 
     # Nixpkgs overlay: Builders, Packages, Overrides, etc.
+    overlays.deps = ak-nix.overlays.default;
     overlays.rime = final: prev: {
       lib = prev.lib.extend libOverlays.default;
     };
-    overlays.deps    = ak-nix.overlays.default;
     overlays.default = nixpkgs.lib.composeExtensions overlays.deps
                                                      overlays.rime;
 
