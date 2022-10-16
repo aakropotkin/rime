@@ -31,8 +31,8 @@
 
     # Pure `lib' extensions.
     # Mostly regex patterns aside from the URI types.
-    libOverlays.default = import ./lib/libOverlay.nix;
-    ytOverlays.default  = import ./types/ytOverlay.nix;
+    libOverlays.default = import ./lib/overlay.lib.nix;
+    ytOverlays.default  = import ./types/overlay.yt.nix;
   
     # Nixpkgs overlay: Builders, Packages, Overrides, etc.
     overlays.pkgs = final: prev: let

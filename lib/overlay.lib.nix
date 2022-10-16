@@ -25,7 +25,7 @@ in {
 
   liburi = callLibs [./uri.nix ./parsers/uri.nix];
 
-  ytypes = prev.ytypes.extend ( import ../types/ytOverlay.nix );
+  ytypes = prev.ytypes.extend ( import ../types/overlay.yt.nix );
 
 }
 
