@@ -37,7 +37,7 @@
     ytOverlays.default  = import ./types/overlay.yt.nix;
   
     # Nixpkgs overlay: Builders, Packages, Overrides, etc.
-    overlays.pkgs = final: prev: let
+    overlays.rime = final: prev: let
       callPackagesWith = auto: prev.lib.callPackagesWith ( final // auto );
       callPackageWith  = auto: prev.lib.callPackageWith ( final // auto );
       callPackages     = callPackagesWith {};
@@ -45,7 +45,7 @@
     in {
       lib = prev.lib.extend self.libOverlays.default;
     };
-    overlays.default = self.overlays.pkgs;
+    overlays.default = self.overlays.rime;
 
 
 # ---------------------------------------------------------------------------- #
