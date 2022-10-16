@@ -63,7 +63,7 @@ in {  # Begin Outputs
 # ---------------------------------------------------------------------------- #
 
     # Installable Packages for Flake CLI.
-    packages = lib.eachDefaultSystemMap ( system: let
+    packages = ak-nix.lib.eachDefaultSystemMap ( system: let
       pkgsFor   = nixpkgs.legacyPackages.${system}.extend overlays.rime;
       testSuite = pkgsFor.callPackages ./tests { inherit lib; };
     in {
