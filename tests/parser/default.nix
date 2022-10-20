@@ -7,11 +7,11 @@
 #
 # ---------------------------------------------------------------------------- #
 
-{ lib       ? rime.lib or pkgsFor.lib
-, pkgsFor   ? ( rime.legacyPackages or nixpkgs.legacyPackages ).${system}
+{ lib       ? pkgsFor.lib
+, pkgsFor   ? nixpkgs.legacyPackages.${system}.extend rime.overlays.default
 , writeText ? pkgsFor.writeText
 , system    ? builtins.currentSystem
-, rime   ? builtins.getFlake ( toString ../.. )
+, rime      ? builtins.getFlake ( toString ../.. )
 , nixpkgs   ? builtins.getFlake "nixpkgs"
 
 # Options

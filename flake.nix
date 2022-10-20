@@ -64,7 +64,7 @@ in {  # Begin Outputs
 
     # Installable Packages for Flake CLI.
     packages = ak-nix.lib.eachDefaultSystemMap ( system: let
-      pkgsFor   = nixpkgs.legacyPackages.${system}.extend overlays.rime;
+      pkgsFor   = nixpkgs.legacyPackages.${system}.extend overlays.default;
       testSuite = pkgsFor.callPackages ./tests {};
     in {
       tests = testSuite.checkDrv;
