@@ -37,7 +37,7 @@
     # Practically speaking you should ignore these unless you were in a
     # situation where you were considering vendoring a copy of the typedefs
     # in another project.
-    ytOverlays.deps    = ak-nix ytOverlays.default;
+    ytOverlays.deps    = ak-nix.ytOverlays.default;
     ytOverlays.rime    = import ./types/overlay.yt.nix;
     ytOverlays.default = nixpkgs.lib.composeExtensions ytOverlays.deps
                                                        ytOverlays.rime;
