@@ -14,9 +14,8 @@
 {
   description = "A Nix CLI extension kit";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/master";
-  inputs.ak-nix.url  = "github:aakropotkin/ak-nix/main";
-  inputs.ak-nix.inputs.nixpkgs.follows = "/nixpkgs";
+  inputs.ak-nix.url      = "github:aakropotkin/ak-nix/main";
+  inputs.nixpkgs.follows = "/ak-nix/nixpkgs";
 
 # ---------------------------------------------------------------------------- #
 
@@ -59,6 +58,7 @@
 in {  # Begin Outputs
 
     inherit overlays libOverlays ytOverlays;
+    lib = nixpkgs.lib.extend libOverlays.default;
     
 # ---------------------------------------------------------------------------- #
 
