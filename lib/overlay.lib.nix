@@ -1,6 +1,7 @@
 # ============================================================================ #
 #
-#
+# Nixpkgs `lib' extensions.
+# Depends on `nixpkgs.lib' and `ak-nix.lib' routines.
 #
 # ---------------------------------------------------------------------------- #
 
@@ -24,6 +25,7 @@ final: prev: let
 in {
 
   liburi = callLibs [./uri.nix ./parsers/uri.nix];
+  libgit = callLib  ./git.nix;
 
   ytypes = prev.ytypes.extend ( import ../types/overlay.yt.nix );
 

@@ -76,30 +76,8 @@
 
 # ---------------------------------------------------------------------------- #
 
-  # Non-strict
-  tryParseRef = x: let
-    sp = builtins.split "/" x;
-    st = builtins.filter builtins.isString sp;
-    ok = builtins.all Strings.ref_component.check st;
-  in if ok then st else null;
-
-  parseRef =
-    yt.defun [Eithers.ref ( yt.list Strings.ref_component )] tryParseRef;
-
-
-# ---------------------------------------------------------------------------- #
-
 in {
   inherit RE Strings Eithers;
-  inherit
-    tryParseRef
-    parseRef
-  ;
-  # Must include at least two component.
-  # This is the "real" requirement.
-  isRefStrict = Strings.ref_strict.check;
-  # Leading component may be omitted, and is assumed to be `head'.
-  isRef = Eithers.ref.check;
 }
 
 
