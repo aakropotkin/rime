@@ -1,0 +1,16 @@
+#! /usr/bin/env bash
+TDIR="$( mktemp -d; )";
+cd "$TDIR";
+git init;
+cat <<EOF > flake.nix;
+{
+  inputs.x.url = "$1";
+  flake = true;
+  outputs = _: {};
+}
+EOF
+git add flake.nix;
+nix flake lock;
+jq '.flakes[]|.locked' ./flake.nix;
+cd -;
+rm -rf "$TDIR";
