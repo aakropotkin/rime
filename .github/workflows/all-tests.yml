@@ -5,7 +5,7 @@ on:
       -  main
     paths:
       - .github/workflows/all-tests.yml
-      - flake.nix
+      - flake.*
       - tests/**
       - types/**
       - lib/**
@@ -15,7 +15,7 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - .github/workflows/all-tests.yml
-      - flake.nix
+      - flake.*
       - tests/**
       - types/**
       - lib/**
