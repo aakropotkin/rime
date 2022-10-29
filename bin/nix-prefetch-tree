@@ -47,6 +47,7 @@ done
 
 # Cleanup Routine
 
+_es=0;
 trap '
 _es="$?";
 if test "$_es" -ne 0; then
@@ -55,7 +56,7 @@ fi
 cd -;
 rm -rf "$TDIR";
 exit "$_es";
-' HUP TERM INT QUIT KILL;
+' HUP TERM INT QUIT;
 
 
 # ---------------------------------------------------------------------------- #
