@@ -38,7 +38,8 @@
     # in another project.
     ytOverlays.deps    = ak-nix.ytOverlays.default;
     ytOverlays.rime    = import ./types/overlay.yt.nix;
-    ytOverlays.default = nixpkgs.lib.composeExtensions ytOverlays.deps                                 ytOverlays.rime;
+    ytOverlays.default = nixpkgs.lib.composeExtensions ytOverlays.deps
+                                                       ytOverlays.rime;
 
 
 # ---------------------------------------------------------------------------- #
@@ -48,7 +49,8 @@
     overlays.rime = final: prev: {
       lib = prev.lib.extend libOverlays.default;
     };
-    overlays.default = nixpkgs.lib.composeExtensions overlays.deps                     overlays.rime;
+    overlays.default = nixpkgs.lib.composeExtensions overlays.deps
+                                                     overlays.rime;
 
 
 # ---------------------------------------------------------------------------- #
