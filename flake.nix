@@ -73,6 +73,30 @@ in {  # Begin Outputs
 
 # ---------------------------------------------------------------------------- #
 
+    # Executables for Flake CLI.
+    apps = ak-nix.lib.eachDefaultSystemMap ( system: let
+      pkgsFor = nixpkgs.legacyPackages.${system}.extend overlays.default;
+    in {
+
+      nix-prefetch-tree.type = "app";
+      nix-prefetch-tree.program = ( pkgsFor.writeShellApplication {
+        name = "nix-prefetch-tree";
+        runtimeInputs = [pkgsFor.nix pkgsFor.jq pkgsFor.git pkgsFor.coreutils];
+        text = builtins.readFile ./bin/nix-prefetch-tree;
+      } ).outPath + "/bin/nix-prefetch-tree";
+
+      nix2json.type = "app";
+      nix2json.program = ( pkgsFor.writeShellApplication {
+        name = "nix2json";
+        runtimeInputs = [pkgsFor.nix];
+        text = builtins.readFile ./bin/nix2json;
+      } ).outPath + "/bin/nix2json";
+
+    } );  # end Applications
+
+
+# ---------------------------------------------------------------------------- #
+
   };  # End Outputs
 }
 
