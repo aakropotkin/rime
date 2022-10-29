@@ -1,31 +1,39 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i bash -p bash
+#! /usr/bin/env bash
 
-flakeref='nixpkgs';
-attr='';
-nixflags='';
-declare -A regrefs;
-eval "regrefs=( $(
-  nix registry list|sed 's/^[^:]\{1,\}:\([^ ]\{1,\}\) \(.*\)$/[\1]=\"\2\"/';
-) );";
+: "${NIX:=nix}";
+: "${SED:=sed}";
+
+: "${NO_HEADER:=}";
+: "${FLAKE_REF=nixpkgs}";
+
+ATTR='';
+NIX_FLAGS='';
+# shellcheck disable=SC2034
+declare -A REGREFS;
+
+$NIX registry list|$SED 's/^[^:]\{1,\}:\([^ ]\{1,\}\) \(.*\)$/\1 \"\2\"/'  \
+  |while read -r key val; do
+    eval "REGREFS[$key]=$val";
+  done;
 
 is_regref() {
-  test -n "${regrefs[$1]}";
+  test -n "${REGREFS[$1]:-}";
 }
 
 parse_flag() {
   case "$1" in
+    --no-header|-H) NO_HEADER=:; return 1; ;;
     --write-to|--file|-f|--apply)
-      nixflags="${nixflags+$nixflags }$1 '$2'";
+      NIX_FLAGS="${NIX_FLAGS+$NIX_FLAGS }$1 '$2'";
       return 2;
     ;;
     --raw)
       unlines='o: ( builtins.concatStringsSep "\n" o ) + "\n"';
-      nixflags="${nixflags+$nixflags }--raw --apply '$unlines'";
+      NIX_FLAGS="${NIX_FLAGS+$NIX_FLAGS }--raw --apply '$unlines'";
       return 1;
     ;;
     --json)
-      nixflags="${nixflags+$nixflags }$1";
+      NIX_FLAGS="${NIX_FLAGS+$NIX_FLAGS }$1";
       return 1;
     ;;
     *)
@@ -42,27 +50,33 @@ parse_arg() {
       return "$?";
     ;;
     *#*)
-      flakeref="${1/\#*}";
-      attr="${1/*\#}";
+      FLAKE_REF="${1/\#*}";
+      ATTR="${1/*\#}";
       return 1;
     ;;
     *)
       if { is_regref "$1"||test -e "${1/\/}/flake.nix"; } && test "$#" -gt 1;
       then
-        flakeref="${1%%/}";
-        attr="$2";
+        FLAKE_REF="${1%%/}";
+        ATTR="$2";
         return 2;
       else
-        attr="$1";
+        ATTR="$1";
         return 1;
       fi
     ;;
   esac
 }
 
+set +e;
 while test "$#" -gt 0; do
   parse_arg "$@";
   shift "$?";
 done
+set -e;
 
-eval "nix eval --impure --derivation $nixflags '$flakeref#$attr.outputs';"
+if test -z "${NO_HEADER:+y}"; then
+  echo "> $FLAKE_REF#$ATTR.outputs" >&2;
+fi
+
+eval "$NIX eval --impure --derivation $NIX_FLAGS '$FLAKE_REF#$ATTR.outputs';"

@@ -1,3 +1,31 @@
 #! /usr/bin/env bash
+
 : "${NIX:=nix}";
-$NIX eval --impure --json -f "${1:--}";
+: "${JQ:=jq}";
+
+: "${COMPACT:=}";
+
+while test "$#" -gt 0; do
+  case "$1" in
+    -c|--compact) COMPACT=:; ;;
+    *)
+      if test -z "${INPUT:-}"; then
+        INPUT="$1";
+      else
+        echo "Too many arguments passed" >&2;
+        exit 1;
+      fi
+    ;;
+  esac
+  shift;
+done
+
+: "${INPUT:=-}";
+
+dump_json() { $NIX eval --impure --json -f "$INPUT"; }
+
+if test -n "${COMPACT:+y}"; then
+  dump_json;
+else
+  dump_json|$JQ;
+fi
