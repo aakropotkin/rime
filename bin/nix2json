@@ -1,0 +1,3 @@
+#! /usr/bin/env bash
+: "${NIX:=nix}";
+$NIX eval --impure --json -f "${1:--}";

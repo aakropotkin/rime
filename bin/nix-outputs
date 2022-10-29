@@ -1,0 +1,68 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p bash
+
+flakeref='nixpkgs';
+attr='';
+nixflags='';
+declare -A regrefs;
+eval "regrefs=( $(
+  nix registry list|sed 's/^[^:]\{1,\}:\([^ ]\{1,\}\) \(.*\)$/[\1]=\"\2\"/';
+) );";
+
+is_regref() {
+  test -n "${regrefs[$1]}";
+}
+
+parse_flag() {
+  case "$1" in
+    --write-to|--file|-f|--apply)
+      nixflags="${nixflags+$nixflags }$1 '$2'";
+      return 2;
+    ;;
+    --raw)
+      unlines='o: ( builtins.concatStringsSep "\n" o ) + "\n"';
+      nixflags="${nixflags+$nixflags }--raw --apply '$unlines'";
+      return 1;
+    ;;
+    --json)
+      nixflags="${nixflags+$nixflags }$1";
+      return 1;
+    ;;
+    *)
+      echo "Unrecognized flag: $1" >&2;
+      exit 1;
+    ;;
+  esac
+}
+
+parse_arg() {
+  case "$1" in
+    -*)
+      parse_flag "$@";
+      return "$?";
+    ;;
+    *#*)
+      flakeref="${1/\#*}";
+      attr="${1/*\#}";
+      return 1;
+    ;;
+    *)
+      if { is_regref "$1"||test -e "${1/\/}/flake.nix"; } && test "$#" -gt 1;
+      then
+        flakeref="${1%%/}";
+        attr="$2";
+        return 2;
+      else
+        attr="$1";
+        return 1;
+      fi
+    ;;
+  esac
+}
+
+while test "$#" -gt 0; do
+  parse_arg "$@";
+  shift "$?";
+done
+
+eval "nix eval --impure --derivation $nixflags '$flakeref#$attr.outputs';"
