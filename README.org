@@ -55,3 +55,47 @@ These types will =throw= on failure.
 - =flake-ref-github=
 - =flake-ref-sourcehut= ( basically an alias of =github=, not tested exhaustibly )
 - =flake-ref-mercurial= ( basically an alias of =github=, not tested exhaustibly )
+
+** Utilities and Scripts
+Rime provides a handful of useful scripts that help extract info from Nix.
+These are generally pretty simple, and most anyone could cook these up as shell aliases;
+but exposing them in this flake allows me to lock and consume them in other projects
+
+*** =nix-outputs=
+Given a package name or installable URI, print the available outputs for the derivation.
+This simply dumps =<DERIVATION>.outputs= as a JSON list.
+
+Use this to quickly look up extras that might hold headers, libs, docs, etc for a package.
+
+If no URI is given, arg is interpreted as an attr on =nixpkgs=.
+
+*** =nix2json=
+Naively convert a Nix file to JSON.
+Faster than =nix-serialize=, but will fail on input that contains functions or store paths.
+
+*** =nix-serialize=
+Best effort conversion from Nix to a /flat/ representation.
+
+Similar to =nixpkgs#lib.generators.toPretty= but supports =__serial= functors from
+[[https://github.com/aameen-tulip/at-node-nix][github:aameen-tulip/at-node-nix]], and will
+completely remove fields that cannot be converted to JSON.
+
+**** Options
+- =--json=
+Export JSON instead of a Nix expression.
+
+*** =nix-prefetch-tree=
+Prefetch /flake ref/ URI ( it doesn't need to point to a flake ) and print the "locked"
+attribute representation.
+
+This can be used to lookup =narHash= for URLs quickly.
+I basically made this entire script to /try catch/ to create =narHash= locks on large numbers
+of tarballs. 
+
+By default we assume you assume you are prefetching a tarball, but adding =--type ARG= allows
+you to prefetch any type of ref.
+
+**** Options
+- =-K, --fallback=
+When fetching tarballs, if unpacking fails ( due to archive permissions ) fall back to
+fetching as a regular file.
