@@ -16,6 +16,7 @@ TDIR="$( $MKTEMP -d; )";
 : "${TYPE:=tarball}";
 : "${URL:=}";
 : "${VERBOSE:=}";
+: "${FALLBACK_TO_FILE:=}";
 
 
 # ---------------------------------------------------------------------------- #
@@ -25,6 +26,7 @@ while test "$#" -gt 0; do
     -f|--flake)    FLAKE=true; ;;
     -F|--no-flake) FLAKE=false; ;;
     -t|--type)     TYPE="$2"; shift; ;;
+    -K|--fallback) FALLBACK_TO_FILE=:; ;;
     -V|--verbose)  VERBOSE=:; ;;
     -*) 
       echo "Unrecognized arg: $*" >&2;
@@ -56,7 +58,10 @@ fi
 cd -;
 rm -rf "$TDIR";
 exit "$_es";
-' HUP TERM INT QUIT;
+' HUP TERM INT QUIT KILL;
+
+
+# ---------------------------------------------------------------------------- #
 
 
 # ---------------------------------------------------------------------------- #
@@ -64,17 +69,18 @@ exit "$_es";
 # Make a phony `flake.nix'.
 
 cd "$TDIR";
-
+gen_flake() {
 {
   cat <<EOF
 {
   inputs.x.url   = "$URL";
   inputs.x.flake = ${FLAKE:-false};
-  inputs.x.type  = "${TYPE}";
+  inputs.x.type  = "$TYPE";
   outputs = _: {};
 }
 EOF
 } > flake.nix;
+}
 
 
 # ---------------------------------------------------------------------------- #
@@ -82,16 +88,39 @@ EOF
 # Use it to dump `fetchTree' args from the generated `flake.lock'.
 
 lookup() {
+  gen_flake;
   $GIT init 1>&2;
   $GIT add flake.nix;
   $NIX --extra-experimental-features 'nix-command flakes' flake lock;
   $JQ '.nodes.x.locked' ./flake.lock;
 }
 
-if test -n "${VERBOSE:-}"; then
-  lookup;
+lookup_logged() {
+  if test -n "${VERBOSE:-}"; then
+    lookup;
+  else
+    lookup 2>/dev/null;
+  fi
+}
+
+lookup_fb() {
+  if ! lookup_logged; then
+    if test -n "${VERBOSE:-}"; then
+      echo "Tarball fetching failed. Trying file" >&2;
+    fi
+    TYPE=file;
+    gen_flake;
+    lookup_logged;
+  fi
+}
+
+
+# ---------------------------------------------------------------------------- #
+
+if test "$TYPE" = tarball && test -n "${FALLBACK_TO_FILE:+}"; then
+  lookup_fb;
 else
-  lookup 2>/dev/null;
+  lookup_logged;
 fi
 
 
