@@ -69,6 +69,10 @@ Use this to quickly look up extras that might hold headers, libs, docs, etc for 
 
 If no URI is given, arg is interpreted as an attr on =nixpkgs=.
 
+**** Options
+- =-H,--no-header=
+Suppress log-line ( normally printed to STDERR ).
+
 *** =nix2json=
 Naively convert a Nix file to JSON.
 Faster than =nix-serialize=, but will fail on input that contains functions or store paths.
