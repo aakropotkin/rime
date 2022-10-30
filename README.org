@@ -79,14 +79,12 @@ Faster than =nix-serialize=, but will fail on input that contains functions or s
 
 *** =nix-serialize=
 Best effort conversion from Nix to a /flat/ representation.
+Intended to take a URI as an arg for an attrset/installable, which gets processed through
+=nix eval "$@" --json --impure --apply ...=.
 
 Similar to =nixpkgs#lib.generators.toPretty= but supports =__serial= functors from
 [[https://github.com/aameen-tulip/at-node-nix][github:aameen-tulip/at-node-nix]], and will
 completely remove fields that cannot be converted to JSON.
-
-**** Options
-- =--json=
-Export JSON instead of a Nix expression.
 
 *** =nix-prefetch-tree=
 Prefetch /flake ref/ URI ( it doesn't need to point to a flake ) and print the "locked"
