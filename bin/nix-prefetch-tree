@@ -58,7 +58,7 @@ fi
 cd -;
 rm -rf "$TDIR";
 exit "$_es";
-' HUP TERM INT QUIT KILL;
+' HUP TERM INT QUIT;
 
 
 # ---------------------------------------------------------------------------- #
@@ -108,7 +108,7 @@ lookup_fb() {
     if test -n "${VERBOSE:-}"; then
       echo "Tarball fetching failed. Trying file" >&2;
     fi
-    TYPE=file;
+    TYPE='file';
     gen_flake;
     lookup_logged;
   fi
