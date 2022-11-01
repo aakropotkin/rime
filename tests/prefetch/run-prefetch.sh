@@ -12,7 +12,6 @@ set -eu;
 : "${EXPECT_TYPE:=${2:?}}";
 
 
-set -x
 _es=0;
 TYPE="$(
   {
