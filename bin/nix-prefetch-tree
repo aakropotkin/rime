@@ -35,6 +35,8 @@ while test "$#" -gt 0; do
     *) 
       if test -z "${URL:-}"; then
         URL="$1";
+      elif test "$URL" = "$1"; then
+        :;
       else
         echo "Unrecognized arg: $*" >&2;
         exit 1;

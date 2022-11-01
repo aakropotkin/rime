@@ -62,8 +62,8 @@ jobs:
           echo "# ---------------------------------------------------------------------------- #" >&2;
           nix build head#tests --show-trace --impure;
 
-      #- uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b 
       - name: nix-serialize
+        if: always()
         run: |
           mkdir foo;
           cd foo;
@@ -71,3 +71,13 @@ jobs:
           git init;
           git add ./flake.nix;
           nix run head#nix-serialize -- .#x;
+
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b 
+
+      - name: nix-prefetch-tree No Fallback
+        if: always()
+        run: ./tests/prefetch/no-fallback.sh
+
+      - name: nix-prefetch-tree Fallback
+        if: always()
+        run: ./tests/prefetch/fallback.sh
