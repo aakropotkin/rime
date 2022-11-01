@@ -117,7 +117,7 @@ lookup_fb() {
 
 # ---------------------------------------------------------------------------- #
 
-if test "$TYPE" = tarball && test -n "${FALLBACK_TO_FILE:+}"; then
+if test "$TYPE" = tarball && test -n "${FALLBACK_TO_FILE:+y}"; then
   lookup_fb;
 else
   lookup_logged;
