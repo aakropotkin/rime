@@ -35,8 +35,8 @@
 
     # This is identical to `Git.Strings.ref_component'.
     repo = let
-      cond = s: ( lib.test RE.ref_component_p s ) &&
-                ( ! ( lib.test RE.ref_component_np s ) );
+      cond = s: ( lib.test GitRef.RE.ref_component_p s ) &&
+                ( ! ( lib.test GitRef.RE.ref_component_np s ) );
     in yt.restrict "git:repo" cond yt.string;
 
     rev = yt.restrict "git:rev" ( lib.test RE.rev_p ) yt.string;
