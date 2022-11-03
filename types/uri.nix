@@ -72,7 +72,8 @@
 
 # ---------------------------------------------------------------------------- #
 
-  Attrs.params = yt.attrs ( yt.option Strings.param );
+  #Attrs.params = yt.attrs ( yt.option Strings.param );
+  Attrs.params = yt.attrs ( yt.option Strings.query );
 
 
 # ---------------------------------------------------------------------------- #
