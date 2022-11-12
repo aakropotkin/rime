@@ -54,13 +54,6 @@
 
 
 # ---------------------------------------------------------------------------- #
- 
-in {  # Begin Outputs
-
-    inherit overlays libOverlays ytOverlays;
-    lib = nixpkgs.lib.extend libOverlays.default;
-    
-# ---------------------------------------------------------------------------- #
 
     # Installable Packages for Flake CLI.
     packages = ak-nix.lib.eachDefaultSystemMap ( system: let
@@ -85,6 +78,22 @@ in {  # Begin Outputs
       nix-serialize = mkScript ./bin/nix-serialize [pkgsFor.nix pkgsFor.jq];
       nix-outputs   = mkScript ./bin/nix-outputs [pkgsFor.nix pkgsFor.gnused];
 
+    } );
+
+
+# ---------------------------------------------------------------------------- #
+ 
+in {  # Begin Outputs
+
+    inherit overlays libOverlays ytOverlays packages;
+    lib = nixpkgs.lib.extend libOverlays.default;
+    
+# ---------------------------------------------------------------------------- #
+
+    checks = ak-nix.lib.eachDefaultSystemMap ( system: let
+      pkgsFor = nixpkgs.legacyPackages.${system}.extend overlays.default;
+    in {
+      inherit (packages.${system}) tests;
     } );
 
 
