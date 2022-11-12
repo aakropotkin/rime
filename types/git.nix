@@ -6,8 +6,8 @@
 
 { ytypes }: let
 
-  yt = ytypes // ytypes.Core // ytypes.Prim;
-  GitRef = import ./git-ref.nix { inherit ytypes; };
+  yt       = ytypes // ytypes.Core // ytypes.Prim;
+  GitRef   = import ./git-ref.nix { inherit ytypes; };
   lib.test = patt: s: ( builtins.match patt s ) != null;
 
 # ---------------------------------------------------------------------------- #
