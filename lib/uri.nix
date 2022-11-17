@@ -60,6 +60,18 @@
 
 # ---------------------------------------------------------------------------- #
 
+  Query.toString = q: let
+    proc = acc: f:
+      ( if acc == null then f else "&${f}" ) +
+      ( if q.${f} == null then "" else "=${q.${f}" );
+    fa = if q == {} else bultins.foldl' proc null ( builtins.attrNames q );
+    inner = if builtins.isString q then q else fa;
+  in defun [( yt.either yt.Uri.Strings.query yt.Uri.Attrs.params ) yt.string]
+           inner;
+
+
+# ---------------------------------------------------------------------------- #
+
   Url = {
     name = "Url";
     isType = defun [yt.any yt.bool] Url.ytype.check;
@@ -70,7 +82,8 @@
         auth = if ( x.authority or null ) == null then "" else
                "/${x.authority}";
         # FIXME: query lacks toString
-        q = if ( x.query or null ) != null then "?${x.query}" else "";
+        q = if ( x.query or null ) != null then "?${Query.toString x.query}"
+                                           else "";
         frag = if ( x.fragment or null ) == null then "" else
                "#${x.fragment}";
         mp = if ( x.path or null ) == null then "" else x.path;
@@ -105,6 +118,7 @@ in {
   inherit
     UriScheme
     Url
+    Query
   ;
 }
 
