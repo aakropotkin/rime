@@ -65,7 +65,7 @@
       ( if acc == null then f else "&${f}" ) +
       ( if q.${f} == null then "" else "=${q.${f}}" );
     fa = if q == {} then "" else
-         bultins.foldl' proc null ( builtins.attrNames q );
+         builtins.foldl' proc null ( builtins.attrNames q );
     inner = if builtins.isString q then q else fa;
   in defun [( yt.either yt.Uri.Strings.query yt.Uri.Attrs.params ) yt.string]
            inner;
