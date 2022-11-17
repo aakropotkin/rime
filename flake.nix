@@ -46,8 +46,19 @@
 
     # Nixpkgs overlay: Builders, Packages, Overrides, etc.
     overlays.deps = ak-nix.overlays.default;
-    overlays.rime = final: prev: {
+    overlays.rime = final: prev: let
+      checktbs = import ./src/checkTarballPerms.nix {
+        inherit (final) lib runCommandNoCC;
+      };
+    in {
       lib = prev.lib.extend libOverlays.default;
+      inherit (checktbs)
+        checkTarballPermsDrv
+        checkTarballPerms'
+        checkTarballPermsPure
+        checkTarballPermsImpure
+        checkTarballPerms
+      ;
     };
     overlays.default = nixpkgs.lib.composeExtensions overlays.deps
                                                      overlays.rime;
@@ -94,6 +105,14 @@ in {  # Begin Outputs
       pkgsFor = nixpkgs.legacyPackages.${system}.extend overlays.default;
     in {
       inherit (packages.${system}) tests;
+      # TODO: test checkTarballPerms
+      tarballPerms = pkgsFor.checkTarballPermsDrv {
+        src = builtins.fetchTree {
+          type    = "file";
+          url     = "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz";
+          narHash = "sha256-fn2qMkL7ePPYQyW/x9nvDOl05BDrC7VsfvyfW0xkQyE=";
+        };
+      };
     } );
 
 
