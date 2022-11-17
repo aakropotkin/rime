@@ -50,7 +50,7 @@ This routine uses system dependant "import from derivation" ( IFD ), and it is
 strongly recommended that you cache the results of this operation declaratively.
 
 Ex: checkTarballPerms { src = ./foo.tgz; } => { dirPermsSet = true, ... }
-Ex: checkTarballPerms { url = "https://example.com/foo.tgz; narHash = ..; }
+Ex: checkTarballPerms { url = "https://example.com/foo.tgz; narHash = ...; }
       '';
     };
 
