@@ -1,30 +1,42 @@
 #! /usr/bin/env bash
 set -eu;
+set -o pipefail;
 
+: "${REALPATH:=realpath}";
 : "${NIX:=nix}";
-: "${NIX_FLAGS:=-L --show-trace}";
+: "${NIX_FLAGS:=--no-warn-dirty}";
+: "${NIX_CMD_FLAGS:=-L --show-trace}";
 : "${SYSTEM:=$( $NIX eval --raw --impure --expr builtins.currentSystem; )}";
-: "${GREP:=grep}";
+: "${GREP:=grep}"
+: "${JQ:=jq}";
 
-export NIX_CONFIG='
-warn-dirty = false
-';
-
-nix_w() {
-  { $NIX "$@" 3>&2 2>&1 1>&3|$GREP -v 'warning: unknown flake output'; }  \
-    3>&2 2>&1 1>&3;
-}
+SDIR="$( $REALPATH "${BASH_SOURCE[0]}" )";
+SDIR="${SDIR%/*}";
+: "${FLAKE_REF:=$SDIR}";
 
 trap '_es="$?"; exit "$_es";' HUP EXIT INT QUIT ABRT;
 
-nix_w flake check $NIX_FLAGS --system "$SYSTEM";
-nix_w flake check $NIX_FLAGS --system "$SYSTEM" --impure;
+nix_w() {
+  {
+    {
+      $NIX $NIX_FLAGS "$@" 3>&2 2>&1 1>&3||exit 1;
+    }|$GREP -v 'warning: unknown flake output';
+  } 3>&2 2>&1 1>&3;
+}
 
-nix_w eval .#lib --apply 'lib: builtins.deepSeq lib true';
+nix_w flake check "$FLAKE_REF" $NIX_CMD_FLAGS --system "$SYSTEM";
+nix_w flake check "$FLAKE_REF" $NIX_CMD_FLAGS --system "$SYSTEM" --impure;
+
+# Swallow traces, but show them on failure.
+check_lib() {
+  nix_w eval "$FLAKE_REF#lib" --apply 'lib: builtins.deepSeq lib true';
+}
+check_lib 2>/dev/null||check_lib;
+
+export NIX NIX_FLAGS REALPATH JQ FLAKE_REF;
 
 # Script tests
-SDIR="${BASH_SOURCE[0]%/*}";
-printf '\ntests/prefetch/fallback.sh:\n';
+printf 'tests/prefetch/fallback.sh:\n';
 $SDIR/tests/prefetch/fallback.sh;
-printf '\ntests/prefetch/no-fallback.sh:\n';
+printf 'tests/prefetch/no-fallback.sh:\n';
 $SDIR/tests/prefetch/no-fallback.sh;

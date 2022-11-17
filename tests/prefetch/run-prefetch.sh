@@ -1,12 +1,14 @@
 #! /usr/bin/env bash
-
 set -eu;
 
 : "${NIX:=nix}";
+: "${NIX_FLAGS:=--no-warn-dirty}"
 : "${REALPATH:=realpath}";
 : "${JQ:=jq}";
 : "${FLAKE_REF:=$( $REALPATH "${BASH_SOURCE[0]%/*}/../.."; )}";
-: "${NIX_PREFETCH_TREE:=$NIX run "$FLAKE_REF\#nix-prefetch-tree" --}";
+if test -z "${NIX_PREFETCH_TREE:-}"; then
+  NIX_PREFETCH_TREE="$NIX $NIX_FLAGS run $FLAKE_REF#nix-prefetch-tree --";
+fi
 
 : "${URL:=${1:?}}";
 : "${EXPECT_TYPE:=${2:?}}";
