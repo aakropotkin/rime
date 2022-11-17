@@ -7,9 +7,10 @@
   checkTarballPermsDrv = {
     src
   , name ? lib.libstr.nameFromTarballUrl ( lib.baseName' src )
-  }: runCommandNoCC "check-perms-${name}" {
+  }: runCommandNoCC "check-perms--${name}" {
     inherit src;
-    outputs  = ["out" "perms"];
+    outputs = ["out" "perms"];
+    passthru.bname = name;
   } ''
     tar tzvf "$src"|awk '{ print $1, $2, $4, $5, $6; }' > "$perms";
     if grep '^d..-' "$perms"; then
@@ -92,7 +93,7 @@ Ex: checkTarballPerms { url = "https://example.com/foo.tgz; narHash = ..; }
       passthru = {
         inherit checked;
         perms = lib.fileContents checked.perms.outPath;
-      };
+      } // ( if args ? url then { inherit (args) url; } else {} );
     };
 
     __functor = lib.libfunk.stdProcessArgsFunctor;
