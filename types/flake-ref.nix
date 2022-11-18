@@ -105,13 +105,8 @@
 
 # ---------------------------------------------------------------------------- #
 
-
-
-
-# ---------------------------------------------------------------------------- #
-
   Structs = {
-    flake-ref = struct "flake:ref" {
+    flake_ref = struct "flake:ref" {
       type         = option data_scheme;  # must be inferred if omitted
       id           = option Strings.id;
       dir          = option string;  # Not actually a path.
@@ -129,7 +124,7 @@
     };
 
     # FIXME: if `type' is not given, you must infer it
-    flake-ref-path = let
+    flake_ref_path = let
       cond = x: let
         m    = builtins.match "(path)(\\+[a-z0-9])?:(.*)" x.url;
         type = x.type or ( builtins.head m );
@@ -137,58 +132,58 @@
         uop  = ( x ? url ) || ( x ? path );
         nos  = x == ( removeAttrs x ["repo" "owner" "rev" "ref"] );
       in uot && uop && nos && ( type == "path" );
-    in restrict "path" cond Structs.flake-ref;
+    in restrict "path" cond Structs.flake_ref;
 
-    flake-ref-file = let
+    flake_ref_file = let
       cond = x: let
         m    = builtins.match "(file)(\\+[a-z0-9])?:(.*)" x.url;
         type = x.type or ( builtins.head m );
         nos  = x == ( removeAttrs x ["path" "repo" "owner" "rev" "ref"] );
       in ( x ? url ) && nos && ( type == "file" );
-    in restrict "file" cond Structs.flake-ref;
+    in restrict "file" cond Structs.flake_ref;
 
-    flake-ref-tarball = let
+    flake_ref_tarball = let
       cond = x: let
         m    = builtins.match "(tarball)(\\+[a-z0-9])?:(.*)" x.url;
         type = x.type or ( builtins.head m );
         nos  = x == ( removeAttrs x ["path" "repo" "owner" "rev" "ref"] );
       in ( x ? url ) && nos && ( type == "tarball" );
-    in restrict "tarball" cond Structs.flake-ref;
+    in restrict "tarball" cond Structs.flake_ref;
 
-    flake-ref-git = let
+    flake_ref_git = let
       cond = x: let
         m    = builtins.match "(git)(\\+[a-z0-9])?:(.*)" x.url;
         type = x.type or ( builtins.head m );
         nos  = ! ( ( x ? owner ) || ( x ? repo ) || ( x ? path ) );
       in ( x ? url ) && ( type == "git" );
-    in restrict "git" cond Structs.flake-ref;
+    in restrict "git" cond Structs.flake_ref;
 
     # FIXME: `rev-or-ref' differs from `git' requirement
-    flake-ref-github = let
+    flake_ref_github = let
       cond = x: let
         m    = builtins.match "(github)(\\+[a-z0-9])?:(.*)" x.url;
         type = x.type or ( builtins.head m );
         uofs = ( x ? url ) || ( ( x ? owner ) && ( x ? repo ) );
       in uofs && ( ! ( x ? path ) ) && ( type == "github" );
-    in restrict "github" cond Structs.flake-ref;
+    in restrict "github" cond Structs.flake_ref;
 
-    flake-ref-sourcehut = let
+    flake_ref_sourcehut = let
       cond = x: let
         m    = builtins.match "(sourcehut):(.*)" x.url;
         type = x.type or ( builtins.head m );
         uofs = ( x ? url ) || ( ( x ? owner ) && ( x ? repo ) );
       in uofs && ( ! ( x ? path ) ) && ( type == "sourcehut" );
-    in restrict "sourcehut" cond Structs.flake-ref;
+    in restrict "sourcehut" cond Structs.flake_ref;
 
-    flake-ref-mercurial = let
+    flake_ref_mercurial = let
       cond = x: let
         m    = builtins.match "(hg)(\\+[a-z0-9])?:(.*)" x.url;
         type = x.type or ( assert ( builtins.head m ) == "hg"; "mercurial" );
         uofs = ( x ? url ) || ( ( x ? owner ) && ( x ? repo ) );
       in uofs && ( ! ( x ? path ) ) && ( type == "mercurial" );
-    in restrict "mercurial" cond Structs.flake-ref;
+    in restrict "mercurial" cond Structs.flake_ref;
 
-    flake-ref-indirect = let
+    flake_ref_indirect = let
       cond = x: let
         m    = builtins.match "(indirect)(\\+[a-z0-9])?:(.*)" x.url;
         type = x.type or ( builtins.head m );
@@ -196,7 +191,7 @@
         uofs = ( x ? url ) || ( x ? id ) || ( x ? follows );
         tofl = ( x ? follows ) || ( type == "indirect" );
       in uofs  && tofl;
-    in restrict "indirect" cond Structs.flake-ref;
+    in restrict "indirect" cond Structs.flake_ref;
 
   };
 

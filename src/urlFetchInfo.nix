@@ -18,9 +18,9 @@
       signature = let
         withUrl = yt.restrict "with:url" ( x: x ? url ) ( yt.attrs yt.any );
         fetchInfoUrl = yt.struct "fetchInfo:url" {
-          type = yt.enum ["file" "tarball"];
-          url  = yt.Uri.uri_ref;
-          inherit (yt.Hash) narHash;
+          type    = yt.enum ["file" "tarball"];
+          url     = yt.Uri.uri_ref;
+          narHash = yt.Hash.nar_hash;
         };
       in [( yt.either yt.Uri.uri_ref withUrl ) fetchInfoUrl];
       doc = ''

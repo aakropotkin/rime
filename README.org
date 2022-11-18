@@ -19,7 +19,7 @@ It could be done, but it's less effort for me to just write that stuff in Nix an
 These YANTS types can be used to assert the validity of "flake refs", like those used as flake inputs, or arguments to =builtins.fetchTree=.
 
 #+BEGIN_SRC nix
-  nix-repl> :p map ( builtins.getFlake "github:aakropotkin/rime/main" ).lib.ytypes.FlakeRef.Structs.flake-ref-github [
+  nix-repl> :p map ( builtins.getFlake "github:aakropotkin/rime/main" ).lib.ytypes.FlakeRef.Structs.flake_ref_github [
     { url = "github:aakropotkin/rime/main"; }
     { type = "github"; url = "github:aakropotkin/rime/main"; }
     { type = "github"; owner = "aakropotkin"; repo = "rime"; ref = "main"; }
@@ -33,28 +33,28 @@ These YANTS types can be used to assert the validity of "flake refs", like those
 
 These types will =throw= on failure.
 #+BEGIN_SRC nix
-  nix-repl> lib.ytypes.FlakeRef.Structs.flake-ref-file { type = "file"; url = "file:./foo"; }
+  nix-repl> lib.ytypes.FlakeRef.Structs.flake_ref_file { type = "file"; url = "file:./foo"; }
   =>
   { type = "file"; url = "file:./foo"; }
 
-  nix-repl> lib.ytypes.FlakeRef.Structs.flake-ref-file { type = "file"; path = "./foo"; }
+  nix-repl> lib.ytypes.FlakeRef.Structs.flake_ref_file { type = "file"; path = "./foo"; }
   =>
   error: {
            path = "./foo";
            type = "file";
-         } does not conform to restriction 'flake-ref[file]'
+         } does not conform to restriction 'flake_ref[file]'
 #+END_SRC
 
 *** Available Checks
-- =flake-ref= abstract form, allows any combination of fields used by children.
-- =flake-ref-indirect= an ~inputs.foo.follows = "bar";~ style ref.
-- =flake-ref-path=
-- =flake-ref-file=
-- =flake-ref-tarball=
-- =flake-ref-git=
-- =flake-ref-github=
-- =flake-ref-sourcehut= ( basically an alias of =github=, not tested exhaustibly )
-- =flake-ref-mercurial= ( basically an alias of =github=, not tested exhaustibly )
+- =flake_ref= abstract form, allows any combination of fields used by children.
+- =flake_ref_indirect= an ~inputs.foo.follows = "bar";~ style ref.
+- =flake_ref_path=
+- =flake_ref_file=
+- =flake_ref_tarball=
+- =flake_ref_git=
+- =flake_ref_github=
+- =flake_ref_sourcehut= ( basically an alias of =github=, not tested exhaustibly )
+- =flake_ref_mercurial= ( basically an alias of =github=, not tested exhaustibly )
 
 ** Utilities and Scripts
 Rime provides a handful of useful scripts that help extract info from Nix.

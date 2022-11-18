@@ -44,7 +44,7 @@
           url     = yt.Strings.tarball_url;
           name    = yt.option yt.string;  # FIXME: store_path filename restrictions.
           checker = yt.option yt.function;
-          inherit (yt.Hash) narHash;
+          narHash = yt.Hash.nar_hash;
         };
         withSrc = yt.struct ( lib.applyFields {
           url     = yt.option;
