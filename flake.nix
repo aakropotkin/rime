@@ -50,6 +50,10 @@
       checktbs = import ./src/checkTarballPerms.nix {
         inherit (final) lib runCommandNoCC;
       };
+      urlfi = import ./src/urlFetchInfo.nix {
+        inherit (final) lib;
+        inherit (checktbs) checkTarballPermsImpure;
+      };
     in {
       lib = prev.lib.extend libOverlays.default;
       inherit (checktbs)
@@ -58,6 +62,9 @@
         checkTarballPermsPure
         checkTarballPermsImpure
         checkTarballPerms
+      ;
+      inherit (urlfi)
+        urlFetchInfo
       ;
     };
     overlays.default = nixpkgs.lib.composeExtensions overlays.deps
@@ -103,16 +110,23 @@ in {  # Begin Outputs
 
     checks = ak-nix.lib.eachDefaultSystemMap ( system: let
       pkgsFor = nixpkgs.legacyPackages.${system}.extend overlays.default;
+      lodashFileArgs = {
+        type    = "file";
+        url     = "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz";
+        narHash = "sha256-fn2qMkL7ePPYQyW/x9nvDOl05BDrC7VsfvyfW0xkQyE=";
+      };
     in {
       inherit (packages.${system}) tests;
       # TODO: test checkTarballPerms
       tarballPerms = pkgsFor.checkTarballPermsDrv {
-        src = builtins.fetchTree {
-          type    = "file";
-          url     = "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz";
-          narHash = "sha256-fn2qMkL7ePPYQyW/x9nvDOl05BDrC7VsfvyfW0xkQyE=";
-        };
+        src = builtins.fetchTree lodashFileArgs;
       };
+      urlFetchInfo = let
+        fi = pkgsFor.urlFetchInfo lodashFileArgs;
+        txt = if pkgsFor.lib.inPureEvalMode then "PURE" else
+              if builtins.currentSystem != system then "CROSS" else
+              ( builtins.toJSON fi );
+      in pkgsFor.writeText "urlFetchInfo-test" txt;
     } );
 
 

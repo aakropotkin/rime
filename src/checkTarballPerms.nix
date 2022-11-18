@@ -1,6 +1,12 @@
 # ============================================================================ #
+#
+#
+#
+# ---------------------------------------------------------------------------- #
 
 { lib, runCommandNoCC }: let
+
+  yt = lib.ytypes // lib.ytypes.Core // lib.ytypes.Prim;
 
 # ---------------------------------------------------------------------------- #
 
@@ -29,9 +35,25 @@
       from = "rime#util";
       properties = {
         inherit pure;
-        ifd = true;
+        ifd   = true;
         funkT = "pargs-std";  # required with `stdProcessArgsFunctor'.
       };
+      signature = let
+        arg0_fields = {
+          src     = yt.Typeclasses.store_pathlike;
+          url     = yt.Strings.tarball_url;
+          name    = yt.option yt.string;  # FIXME: store_path filename restrictions.
+          checker = yt.option yt.function;
+          inherit (yt.Hash) narHash;
+        };
+        withSrc = yt.struct ( lib.applyFields {
+          url     = yt.option;
+          narHash = yt.option;
+        } arg0_fields );
+        withUrl =
+          yt.struct ( lib.applyFields { src = yt.option; } arg0_fields );
+        arg0 = yt.either withSrc withUrl;
+      in [arg0 (yt.attrs yt.any)];
       doc = let
         pi = if pure then "pure" else "impure";
         pq = if pure then "" else "?";
@@ -76,9 +98,11 @@ Ex: checkTarballPerms { url = "https://example.com/foo.tgz; narHash = ...; }
           type = "file";
           inherit (asAttrs) url;
         } // nh' );
+        inherit (asAttrs) url;
       };
       rough = self.__thunk // ( if asAttrs ? x then asAttrs else fromUrl );
     in {
+      all     = rough;
       drvArgs = lib.canPassStrict rough.checker rough;
       inherit (rough) checker;
     };
@@ -86,14 +110,17 @@ Ex: checkTarballPerms { url = "https://example.com/foo.tgz; narHash = ...; }
     __innerFunction = args: let
       checked = args.checker args.drvArgs;
       result  = lib.fileContents checked.outPath;
+      url'    = if args.all ? url then { inherit (args.all) url; } else {};
+      nh' = if args.all ? narHash then { inherit (args.all) narHash; } else {};
     in {
       inherit (checked) name;
       dirPermsSet = result == "PASS";
       __toString  = self: "${self.name}: ${result}";
-      passthru = {
-        inherit checked;
+      passthru = url' // nh' // {
         perms = lib.fileContents checked.perms.outPath;
-      } // ( if args ? url then { inherit (args) url; } else {} );
+        inherit checked;
+        inherit (args) all;
+      } ;
     };
 
     __functor = lib.libfunk.stdProcessArgsFunctor;
@@ -112,6 +139,7 @@ in {
   checkTarballPerms       = checkTarballPerms' {};
 
 }
+
 
 # ---------------------------------------------------------------------------- #
 #
