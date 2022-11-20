@@ -82,7 +82,6 @@
       inner = x: let
         auth = if ( x.authority or null ) == null then "" else
                "/${x.authority}";
-        # FIXME: query lacks toString
         q = if ( x.query or null ) != null then "?${Query.toString x.query}"
                                            else "";
         frag = if ( x.fragment or null ) == null then "" else
