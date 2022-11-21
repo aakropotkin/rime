@@ -53,7 +53,7 @@
         withUrl =
           yt.struct ( lib.applyFields { src = yt.option; } arg0_fields );
         arg0 = yt.either withSrc withUrl;
-      in [arg0 (yt.attrs yt.any)];
+      in [arg0 ( yt.attrs yt.any )];
       doc = let
         pi = if pure then "pure" else "impure";
         pq = if pure then "" else "?";
