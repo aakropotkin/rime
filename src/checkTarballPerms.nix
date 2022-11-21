@@ -12,7 +12,9 @@
 
   checkTarballPermsDrv = {
     src
-  , name ? lib.libstr.nameFromTarballUrl ( lib.baseName' src )
+  , name ? let
+      parsed   = lib.libstr.nameFromTarballUrl ( lib.baseName' src );
+    in if yt.FS.Strings.store_filename.check parsed then parsed else "source"
   }: runCommandNoCC "check-perms--${name}" {
     inherit src;
     outputs = ["out" "perms"];
