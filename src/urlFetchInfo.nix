@@ -36,7 +36,7 @@ In either case also return the `narHash' required to refetch the file as a
     };
 
     __functionArgs = {
-      url     = true;
+      url     = false;
       checker = true;
       narHash = true;
     };
