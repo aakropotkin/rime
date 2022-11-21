@@ -41,7 +41,7 @@
       signature = let
         arg0_fields = {
           src     = yt.Typeclasses.store_pathlike;
-          url     = yt.Strings.uri_ref;
+          url     = yt.Uri.Strings.uri_ref;
           name    = yt.option yt.FS.Strings.store_filename;
           checker = yt.option yt.function;
           narHash = yt.Hash.nar_hash;
@@ -88,7 +88,7 @@ Ex: checkTarballPerms { url = "https://example.com/foo.tgz; narHash = ...; }
       loc = "${self.__functionMeta.from}.${self.__functionMeta.name}";
       asAttrs =
         if builtins.isAttrs x then x else
-        if ! pure then { url = lib.ytypes.Strings.uri_ref x; } else
+        if ! pure then { url = lib.ytypes.Uri.Strings.uri_ref x; } else
         throw "(${loc}): In pure mode you must pass attrs args with `narHash'.";
       fromUrl = let
         nh' = if asAttrs ? narHash then { inherit (asAttrs) narHash; } else {};
