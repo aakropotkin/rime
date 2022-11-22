@@ -10,6 +10,7 @@
 
 # ---------------------------------------------------------------------------- #
 
+  # TODO: use a raw derivation
   checkTarballPermsDrv = {
     src
   , name ? let
