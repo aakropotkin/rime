@@ -48,7 +48,7 @@
     overlays.deps = ak-nix.overlays.default;
     overlays.rime = final: prev: let
       checktbs = import ./src/checkTarballPerms.nix {
-        inherit (final) lib runCommandNoCC;
+        inherit (final) lib bash gawk gnugrep gnutar gzip coreutils system;
       };
       urlfi = import ./src/urlFetchInfo.nix {
         inherit (final) lib;

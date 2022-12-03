@@ -4,7 +4,7 @@
 #
 # ---------------------------------------------------------------------------- #
 
-{ lib, runCommandNoCC }: let
+{ lib, bash, coreutils, gnutar, gzip, gawk, gnugrep, system }: let
 
   yt = lib.ytypes // lib.ytypes.Core // lib.ytypes.Prim;
 
@@ -16,18 +16,32 @@
   , name ? let
       parsed   = lib.libstr.nameFromTarballUrl ( lib.baseName' src );
     in if yt.FS.Strings.store_filename.check parsed then parsed else "source"
-  }: runCommandNoCC "check-perms--${name}" {
-    inherit src;
-    outputs = ["out" "perms"];
+  }: lib.lazyDerivation {
+    derivation = derivation {
+      name = "check-perms--${name}";
+      PATH = "${gzip}/bin";
+      TAR  = "${gnutar}/bin/tar";
+      AWK  = "${gawk}/bin/awk";
+      GREP = "${gnugrep}/bin/grep";
+      CAT  = "${coreutils}/bin/cat";
+      outputs = ["out"];
+      inherit src system;
+      builder = "${bash}/bin/bash";
+      args = ["-c" ''
+        $TAR tzvf "$src"|$AWK '{ print $1, $2, $4, $5, $6; }' > ./perms;
+        if $GREP '^d..-' ./perms; then
+          printf FAIL > "$out";
+        else
+          printf PASS > "$out";
+        fi
+        echo '---' >> "$out";
+        $CAT ./perms >> "$out";
+      ''];
+      preferLocalBuild = true;
+      allowSubstitutes = ( builtins.currentSystem or null ) != system;
+    };
     passthru.bname = name;
-  } ''
-    tar tzvf "$src"|awk '{ print $1, $2, $4, $5, $6; }' > "$perms";
-    if grep '^d..-' "$perms"; then
-      printf FAIL > "$out";
-    else
-      printf PASS > "$out";
-    fi
-  '';
+  };
 
 
 # ---------------------------------------------------------------------------- #
@@ -116,13 +130,15 @@ Ex: checkTarballPerms { url = "https://example.com/foo.tgz; narHash = ...; }
 
     __innerFunction = args: let
       checked = args.checker args.drvArgs;
-      result  = lib.fileContents checked.outPath;
+      result  = builtins.substring 0 5 ( builtins.readFile checked.outPath );
       url'    = if args.all ? url then { inherit (args.all) url; } else {};
       nh' = if args.all ? narHash then { inherit (args.all) narHash; } else {};
     in {
       inherit (checked) name;
-      dirPermsSet = result == "PASS";
-      __toString  = self: "${self.name}: ${result}";
+      dirPermsSet = ( builtins.substring 0 4 result ) == "PASS";
+      __toString  = self: let
+        msg = if self.dirPermsSet then "PASS" else "FAIL";
+      in "${self.name}: ${msg}";
       passthru = url' // nh' // {
         perms = lib.fileContents checked.perms.outPath;
         inherit checked;
