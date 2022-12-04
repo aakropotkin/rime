@@ -43,7 +43,7 @@ In either case also return the `narHash' required to refetch the file as a
 
     __innerFunction = args: let
       checked = args.checker args.drvArgs;
-      result  = lib.fileContents checked.outPath;
+      result  = builtins.substring 0 4 ( builtins.readFile checked.outPath );
       unlocked = {
         inherit (args.all) url;
         type = if result == "PASS" then "tarball" else "file";
