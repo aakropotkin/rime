@@ -30,9 +30,9 @@
       args = ["-c" ''
         $TAR tzvf "$src"|$AWK '{ print $1, $2, $4, $5, $6; }' > ./perms;
         if $GREP '^d..-' ./perms; then
-          printf FAIL > "$out";
+          echo FAIL > "$out";
         else
-          printf PASS > "$out";
+          echo PASS > "$out";
         fi
         echo '---' >> "$out";
         $CAT ./perms >> "$out";
@@ -140,7 +140,7 @@ Ex: checkTarballPerms { url = "https://example.com/foo.tgz; narHash = ...; }
         msg = if self.dirPermsSet then "PASS" else "FAIL";
       in "${self.name}: ${msg}";
       passthru = url' // nh' // {
-        perms = lib.fileContents checked.perms.outPath;
+        perms = lib.fileContents checked.outPath;
         inherit checked;
         inherit (args) all;
       } ;
