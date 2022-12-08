@@ -32,7 +32,7 @@
 # $ FLAKE_REF="$( nix eval --raw -f inputs.nix; )";
 # $ echo "$FLAKE_REF";
 # github:aameen-tulip/at-node-nix/ef7cc7ef572f50e537739706668aadb9029d5d1e
-# $ nix run "$FLAKE_REF#genMeta -- --help
+# $ nix run "$FLAKE_REF#genMeta" -- --help
 # Generate a Floco metaSet for an NPM registry tarball
 # ...
 #
