@@ -132,6 +132,14 @@ in {  # Begin Outputs
 
 # ---------------------------------------------------------------------------- #
 
+  templates.inputs.path        = ./templates/inputs;
+  templates.inputs.description =
+    "( inputs.nix ): " +
+    "Expose flake inputs to legacy Nix CLI, and non-flake expressions.";
+
+
+# ---------------------------------------------------------------------------- #
+
   };  # End Outputs
 }
 
