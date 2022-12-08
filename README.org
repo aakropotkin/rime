@@ -23,7 +23,7 @@ repositories when used in combination with ~nix (build|eval) -f ./build.nix;~.
 
 #+BEGIN_SRC shell
 # Add `inputs.nix' to a flake
-$ nix flake init -t rime#
+$ nix flake init -t rime#inputs;
 
 # Example: Print URIs usable by `builtins.getFlake' and Nix CLI tools.
 $ nix eval --json -f inputs.nix|jq;
