@@ -3,7 +3,7 @@
 # Allows locked inputs to be referenced without evaluating the flake which owns
 # the lockfile.
 #
-# NOTE: This file may be dropped into any directory that contains a `flake.nix'.
+# NOTE: This file may be dropped into any directory containing a `flake.lock'.
 #
 # ---------------------------------------------------------------------------- #
 #
