@@ -15,6 +15,47 @@ Given that the Nix flakes interfaces revolve around URI parsing, I've defined so
 I initially took a shot at exposing Nix's builtin =parseFlakeRef= or =fetchTree= routines, but they were rooted in the actual fetching of flakes and trees to port as standalone routines.
 It could be done, but it's less effort for me to just write that stuff in Nix anyway and avoid fooling with plugins.
 
+** Templates
+*** =inputs.nix=
+A shim exposing =flake.lock= contents to CLI tooling and non-flake Nix expressions.
+This should have a dramatic effect on performance of "dirty tree" operations in large
+repositories when used in combination with ~nix (build|eval) -f ./build.nix;~.
+
+#+BEGIN_SRC shell
+# Add `inputs.nix' to a flake
+$ nix flake init -t rime#
+
+# Example: Print URIs usable by `builtins.getFlake' and Nix CLI tools.
+$ nix eval --json -f inputs.nix|jq;
+{
+  "ak-nix": "github:aakropotkin/ak-nix/123fc484c3c68e354704c86a88d88e343e6371f3",
+  "at-node-nix": "github:aameen-tulip/at-node-nix/ef7cc7ef572f50e537739706668aadb9029d5d1e",
+  "laika": "github:aakropotkin/laika/5b8eb6aab5f9eb2b4f9d93f40bb75ab7d0f5127c",
+  "nixpkgs": "github:NixOS/nixpkgs/95aeaf83c247b8f5aa561684317ecd860476fcd6",
+  "nixpkgs_2": "github:NixOS/nixpkgs/95aeaf83c247b8f5aa561684317ecd860476fcd6",
+  "rime": "github:aakropotkin/rime/b7440e737b5e43b99a88dd192f469d4d9d419b7f"
+}
+
+# Example: Print URI of `at-node-nix' ( unquoted ) for setting an env var.
+$ FLAKE_REF="$( nix eval --raw -f inputs.nix; )";
+$ echo "$FLAKE_REF";
+github:aameen-tulip/at-node-nix/ef7cc7ef572f50e537739706668aadb9029d5d1e
+$ nix run "$FLAKE_REF#genMeta" -- --help;
+Generate a Floco metaSet for an NPM registry tarball
+...
+
+# Example: Extended attrs
+$ nix eval --json -f inputs.nix ak-nix.locked|jq;
+{
+  "lastModified": 1670101191,
+  "narHash": "sha256-q9D0cEHvvfTVK+f6hjrEnLtXAiP0cVfrzlOduD/Lz58=",
+  "owner": "aakropotkin",
+  "repo": "ak-nix",
+  "rev": "123fc484c3c68e354704c86a88d88e343e6371f3",
+  "type": "github"
+}
+#+END_SRC
+
 ** Flake Ref Types
 These YANTS types can be used to assert the validity of "flake refs", like those used as flake inputs, or arguments to =builtins.fetchTree=.
 
