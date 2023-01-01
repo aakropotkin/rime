@@ -1,10 +1,17 @@
-#+TITLE: Rime: Nix CLI Wrapper Generators
+#+TITLE: Rime: Nix URI libs
 
 * About
-Sometimes I felt the need to add pre/post hooks to Nix CLI commands; particularly for the flakes.
-For example "update all sub-flakes when ~nix flake update~ is called on a parent".
+=rime= fully implements a spec compliant URI parser in pure Nix.
 
-The goal of this repo is collect a few wrapper generators and useful routines for extending the base TUI.
+Additionally this repo provides type abstractions for parsing
+Flake Input URIs ( flake refs ) to attributes, and can convert
+them attrs to URIs.
+
+Finally you'll find a nice collection of scripts that expose
+these routines as executables for use in scripts.
+
+If you're processing URIs with Nix don't do it from scratch, 
+let =rime= do the heavy lifting for ya.
 
 ** "Rime"
 Thin crystal layer of ice and snow formed by fog; particularly on branches.
