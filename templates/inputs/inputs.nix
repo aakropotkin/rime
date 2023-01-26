@@ -89,18 +89,22 @@ let
   in if locked ? dir then "${absoluteURI}${psep}dir=${locked.dir}" else
      absoluteURI;
 
-  defInput = id: node: {
-    inherit id;
-    inherit (node) locked;
-    uri = getURI id node;
-    __toString = self: self.uri;
-  };
+  defInput = id: node: let
+    self = {
+      inherit id;
+      inherit (node) locked;
+      tree       = builtins.fetchTree node.locked;
+      uri        = getURI id node;
+      __toString = self: self.uri;
+    };
+  in self // { flake = builtins.getFlake self.uri; };
 
   lock = lib.importJSON ./flake.lock;
 
 # ---------------------------------------------------------------------------- #
 
 in builtins.mapAttrs defInput ( removeAttrs  lock.nodes ["root"] )
+
 
 # ---------------------------------------------------------------------------- #
 #
