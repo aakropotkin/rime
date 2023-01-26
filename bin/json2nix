@@ -1,0 +1,54 @@
+#! /usr/bin/env bash
+
+set -eu;
+set -o pipefail;
+
+: "${NIX:=nix}";
+: "${COMPACT:=}";
+: "${MKTEMP:=}";
+: "${REALPATH:=realpath}";
+
+_es=0;
+
+while test "$#" -gt 0; do
+  case "$1" in
+    -c|--compact) COMPACT=:; ;;
+    *)
+      if test -z "${INPUT:-}"; then
+        INPUT="$( $REALPATH "$1"; )";
+      else
+        echo "Too many arguments passed" >&2;
+        exit 1;
+      fi
+    ;;
+  esac
+  shift;
+done
+
+if [[ -z "${INPUT:-}" ]]; then
+  INPUT="$( $MKTEMP; )";
+  trap '_es="$?"; rm -f "$INPUT"; exit "$_es";' HUP TERM INT QUIT EXIT;
+  while IFS= read -r line; do
+    printf '%s\n' "$line" >> "$INPUT";
+  done
+fi
+
+dump_nix() {
+  export COMPACT INPUT;
+  declare -a NIX_FLAGS;
+  NIX_FLAGS=( '--impure' );
+  [[ -z "${COMPACT:-}" ]] && NIX_FLAGS+=( '--raw' );
+  $NIX eval "${NIX_FLAGS[@]}" --expr 'let
+    expr = builtins.fromJSON ( builtins.readFile ( builtins.getEnv "INPUT" ) );
+    inherit (builtins.getFlake "nixpkgs") lib;
+    pretty = lib.generators.toPretty {} expr;
+    quoted = let
+      reserved = ["assert" "with" "let" "in" "or" "inherit" "rec" "throw"];
+      from = map ( w: " " + w + " = " ) reserved;
+      to   = map ( w: " \"" + w + "\" = " ) reserved;
+    in builtins.replaceStrings from to pretty;
+  in if ( builtins.getEnv "COMPACT" ) != "" then expr else pretty
+  ';
+}
+
+dump_nix;

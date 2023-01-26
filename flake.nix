@@ -92,6 +92,7 @@
         pkgsFor.git
         pkgsFor.coreutils
       ];
+      json2nix      = mkScript ./bin/json2nix [pkgsFor.nix pkgsFor.coreutils];
       nix2json      = mkScript ./bin/nix2json [pkgsFor.nix pkgsFor.jq];
       nix-serialize = mkScript ./bin/nix-serialize [pkgsFor.nix pkgsFor.jq];
       nix-outputs   = mkScript ./bin/nix-outputs [pkgsFor.nix pkgsFor.gnused];
