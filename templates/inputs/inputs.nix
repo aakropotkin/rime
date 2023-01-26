@@ -14,7 +14,7 @@
 #
 # Example: Print URIs usable by `builtins.getFlake' and Nix CLI tools.
 #
-# $ nix eval --json -f inputs.nix|jq
+# $ nix eval --json -f inputs.nix|jq;
 # {
 #   "ak-nix": "github:aakropotkin/ak-nix/123fc484c3c68e354704c86a88d88e343e6371f3",
 #   "at-node-nix": "github:aameen-tulip/at-node-nix/ef7cc7ef572f50e537739706668aadb9029d5d1e",
@@ -29,10 +29,10 @@
 # 
 # Example: Print URI of `at-node-nix' ( unquoted ) for setting an env var.
 #
-# $ FLAKE_REF="$( nix eval --raw -f inputs.nix; )";
+# $ FLAKE_REF="$( nix eval --raw -f inputs.nix at-node-nix; )";
 # $ echo "$FLAKE_REF";
 # github:aameen-tulip/at-node-nix/ef7cc7ef572f50e537739706668aadb9029d5d1e
-# $ nix run "$FLAKE_REF#genMeta" -- --help
+# $ nix run "$FLAKE_REF#genMeta" -- --help;
 # Generate a Floco metaSet for an NPM registry tarball
 # ...
 #
@@ -41,7 +41,7 @@
 #
 # Example: Print extended attrset of `ak-nix' for use with `builtins.fetchTree'.
 #
-# $ nix eval --json -f inputs.nix ak-nix.locked|jq
+# $ nix eval --json -f inputs.nix ak-nix.locked|jq;
 # {
 #   "lastModified": 1670101191,
 #   "narHash": "sha256-q9D0cEHvvfTVK+f6hjrEnLtXAiP0cVfrzlOduD/Lz58=",
