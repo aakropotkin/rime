@@ -12,7 +12,7 @@
 # ---------------------------------------------------------------------------- #
 
 {
-  description = "A Nix CLI extension kit";
+  description = "A Nix URI toolkit";
 
   inputs.ak-nix.url      = "github:aakropotkin/ak-nix/main";
   inputs.nixpkgs.follows = "/ak-nix/nixpkgs";
