@@ -60,14 +60,15 @@
 
 # ---------------------------------------------------------------------------- #
 
-  Query.toString = q: let
-    proc = acc: f:
-      ( if acc == null then f else "&${f}" ) +
-      ( if q.${f} == null then "" else "=${q.${f}}" );
-    fa = if q == {} then "" else
-         builtins.foldl' proc null ( builtins.attrNames q );
-    inner = if builtins.isString q then q else fa;
-  in defun [( yt.either yt.Uri.Strings.query yt.Uri.Attrs.params ) yt.string]
+  Query.toString = let
+    inner = q: let
+      proc = acc: f:
+        ( if acc == null then f else "&${f}" ) +
+        ( if q.${f} == null then "" else "=${q.${f}}" );
+      fa = if q == {} then "" else
+           builtins.foldl' proc null ( builtins.attrNames q );
+    in if builtins.isString q then q else fa;
+  in defun [( yt.either ut.Strings.query ut.Attrs.params ) yt.string]
            inner;
 
 
