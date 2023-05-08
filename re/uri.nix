@@ -54,7 +54,7 @@ let
     authority_p    = "(${server_p}|${reg_name_p})";
     scheme_p       = "[[:alpha:]][[:alnum:]+.-]*";
     layer_p        = "[[:alpha:]][[:alnum:].-]*";  # scheme sublayer "()+()"
-    rel_segment_p  = "1(${escaped_p1}|[;@&=+$,${unreserved_c}])*";
+    rel_segment_p  = "(${escaped_p1}|[;@&=+$,${unreserved_c}])*";
     rel_path_p     = "${rel_segment_p}(${abs_path_p})?";
     abs_path_p     = "/${path_segments_p}";
     net_path_p     = "//${authority_p}(${abs_path_p})?";

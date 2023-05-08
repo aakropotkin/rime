@@ -26,7 +26,7 @@
     rel_path      = tpat "rel_path";
     abs_path      = tpat "abs_path";
     net_path      = tpat "net_path";
-    # NOTE: the names "absolute/relative" aRE somewhat confusing because they
+    # NOTE: the names "absolute/relative" are somewhat confusing because they
     # may refer to "absolute/relative URIs", or paths.
     # The type "path" should be renamed.
     # XXX: NOT relative!
@@ -92,7 +92,7 @@
 
     url = yt.struct "url" {
       inherit (Structs) scheme;
-      path      = yt.option Strings.path;
+      path      = yt.option ( yt.either Strings.path Strings.rel_path );
       authority = yt.option Strings.authority;  # technically part of "path"
       query     = yt.option Attrs.params;
       fragment  = yt.option Strings.fragment;
@@ -114,6 +114,15 @@
       path = yt.sum "hier_path" {
         absolute = Strings.abs_path;
         network  = Strings.net_path;
+      };
+      query = yt.option Strings.query;
+    };
+
+    opaque_part = yt.struct "opaque_part" {
+      path = yt.sum "path" {
+        absolute = Strings.abs_path;
+        network  = Strings.net_path;
+        relative = Strings.rel_path;
       };
       query = yt.option Strings.query;
     };

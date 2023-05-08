@@ -43,6 +43,22 @@
 
 # ---------------------------------------------------------------------------- #
 
+  parseOpaquePart = let
+    inner = str: let
+      m = builtins.match "([^?]+)(\\?(.*))?" str;
+    in {
+      query = builtins.elemAt m 2;
+      path = lib.discr [
+        { network  = uts.net_path.check; }
+        { absolute = uts.abs_path.check; }
+        { relative = uts.rel_path.check; }
+      ] ( builtins.head m );
+    };
+  in defun [uts.opaque_part yt.Uri.Structs.opaque_part] inner;
+
+
+# ---------------------------------------------------------------------------- #
+
   parseHierarchyPart = let
     inner = str: let
       m = builtins.match "([^?]+)(\\?(.*))?" str;
@@ -65,7 +81,7 @@
       pa = if p == null then null else { absolute = p; };
     in {
       authority = builtins.head m;
-      path = pa;
+      path      = pa;
     };
   in defun [uts.net_path yt.Uri.Structs.net_path] inner;
 
@@ -138,16 +154,25 @@
       abs_uri = parseAbsoluteUri uri_ref.uri.absolute;
       # { path.(absolute|network), query : String }
       hier_part = parseHierarchyPart abs_uri.part.hierarchy;
+      # { path.(absolute|network|relative), query : String }
+      opaque_part = parseOpaquePart abs_uri.part.opaque;
       # { authority, path.absolute }
-      net_path  = parseNetworkPath hier_part.path.network;
+      net_path = parseNetworkPath hier_part.path.network;
     in {
       scheme    = parseScheme abs_uri.scheme;
-      authority = if ! ( hier_part.path ? network ) then null else
-                  net_path.authority;
-      path = if hier_part.path ? network then net_path.path.absolute or null
+      authority =
+        if abs_uri.part ? opaque then null else
+        if ! ( hier_part.path ? network ) then null else
+        net_path.authority;
+      path =
+        if abs_uri.part ? opaque then
+          builtins.head ( builtins.attrValues opaque_part.path )
+        else if hier_part.path ? network then net_path.path.absolute or null
              else hier_part.path.absolute;
-      query = if hier_part.query == null then null else
-              parseQuery hier_part.query;
+      query = let
+        q = if abs_uri.part ? opaque then opaque_part.query or null else
+            hier_part.query or null;
+      in if q == null then null else parseQuery q;
       inherit (uri_ref) fragment;
     };
   in defun [uts.uri_ref yt.Uri.Structs.url] inner;
@@ -172,6 +197,7 @@ in {
   inherit
     parseUriRef
     parseAbsoluteUri
+    parseOpaquePart
     parseHierarchyPart
     parseNetworkPath
     parseAbsolutePath
