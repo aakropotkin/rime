@@ -75,9 +75,9 @@
 # ---------------------------------------------------------------------------- #
 
   Url = {
-    name = "Url";
+    name   = "Url";
     isType = defun [yt.any yt.bool] Url.ytype.check;
-    ytype = either ut.Strings.uri_ref ut.Structs.url;
+    ytype  = either ut.Strings.uri_ref ut.Structs.url;
     # Writer
     toString = let
       inner = x: let

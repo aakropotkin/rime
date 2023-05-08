@@ -24,8 +24,9 @@ final: prev: let
 
 in {
 
-  liburi = callLibs [./uri.nix ./parsers/uri.nix];
-  libgit = callLib  ./git.nix;
+  liburi     = callLibs [./uri.nix ./parsers/uri.nix];
+  libgit     = callLib  ./git.nix;
+  libresolve = callLib ./resolve.nix;
 
   ytypes = prev.ytypes.extend ( import ../types/overlay.yt.nix );
 
