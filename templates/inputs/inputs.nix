@@ -103,7 +103,7 @@ let
 
 # ---------------------------------------------------------------------------- #
 
-in builtins.mapAttrs defInput ( removeAttrs  lock.nodes ["root"] )
+in builtins.mapAttrs defInput ( removeAttrs lock.nodes ["root"] )
 
 
 # ---------------------------------------------------------------------------- #
