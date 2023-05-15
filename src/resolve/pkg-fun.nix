@@ -4,7 +4,7 @@
 #
 # ---------------------------------------------------------------------------- #
 
-{ stdenv, bash, nix, boost, nlohmann_json, pkg-config }: stdenv.mkDerivation {
+{ stdenv, nix, boost, nlohmann_json, pkg-config }: stdenv.mkDerivation {
   pname   = "resolve";
   version = "0.1.0";
   src     = builtins.path {
@@ -16,10 +16,8 @@
     ] );
   };
   nativeBuildInputs     = [pkg-config];
-  buildInputs           = [nix nix.dev boost nlohmann_json];
-  propagatedBuildInputs = [bash nix];
+  buildInputs           = [nix.dev boost nlohmann_json];
   dontConfigure         = true;
-  libExt                = stdenv.hostPlatform.extensions.sharedLibrary;
   buildPhase            = ''
     $CXX                                                                       \
       -I${nix.dev}/include                                                     \
