@@ -1,0 +1,8 @@
+clang
+%cpp -std=c++17
+-I/nix/store/fx6i2p6sn88gymik9f6qln86s978vwkr-nix-2.13.3-dev/include
+-I/nix/store/fx6i2p6sn88gymik9f6qln86s978vwkr-nix-2.13.3-dev/include/nix
+-I/nix/store/zhknm5hxij5gprm3xrd41r6lipvjkfc9-boost-1.79.0-dev/include
+-I/nix/store/y0sajf4ns4drdgw531q450kb0xvhvdqw-nlohmann_json-3.11.2/include
+-include
+/nix/store/fx6i2p6sn88gymik9f6qln86s978vwkr-nix-2.13.3-dev/include/nix/config.h

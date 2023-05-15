@@ -66,9 +66,8 @@
       inherit (urlfi)
         urlFetchInfo
       ;
-      nix-parse-uri = import ./src/parse-uri {
-        inherit (final) stdenv nix boost nlohmann_json;
-      };
+      nix-parse-uri = final.callPackage ./src/parse-uri/pkg-fun.nix {};
+      resolve       = final.callPackage ./src/resolve/pkg-fun.nix {};
     };
     overlays.default = nixpkgs.lib.composeExtensions overlays.deps
                                                      overlays.rime;
@@ -86,7 +85,7 @@
         text = builtins.readFile path;
       };
     in {
-      inherit (pkgsFor) nix-parse-uri;
+      inherit (pkgsFor) nix-parse-uri resolve;
       default = pkgsFor.nix-parse-uri;
 
       tests = testSuite.checkDrv;

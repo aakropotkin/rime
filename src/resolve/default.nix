@@ -6,4 +6,7 @@
 , nix           ? pkgsFor.nix
 , boost         ? pkgsFor.boost
 , nlohmann_json ? pkgsFor.nlohmann_json
-}: import ./pkg-fun.nix { inherit stdenv bash nix boost nlohmann_json; }
+, pkg-config    ? pkgsFor.pkg-config
+}: import ./pkg-fun.nix {
+  inherit stdenv bash nix boost nlohmann_json pkg-config;
+}
