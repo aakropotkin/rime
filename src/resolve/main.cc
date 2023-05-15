@@ -36,13 +36,10 @@ main( int argc, char * argv[], char ** envp )
 
   EvalState state( {}, openStore() );
 
-  auto res         = nlohmann::json::object();
   auto originalRef = parseFlakeRef( argv[1], absPath( "." ) );
   auto resolvedRef = originalRef.resolve( state.store );
   
-  res["original"] = originalRef.to_string();
-  res["resolved"] = resolvedRef.to_string();
-  std::cout << res.dump() << std::endl;
+  std::cout << resolvedRef.to_string() << std::endl;
 
   return 0;
 }
