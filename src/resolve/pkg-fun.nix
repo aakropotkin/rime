@@ -21,7 +21,6 @@
   buildPhase            = ''
     $CXX                                                                       \
       -I${nix.dev}/include                                                     \
-      -I${nix.dev}/include/nix                                                 \
       -I${boost.dev}/include                                                   \
       -I${nlohmann_json}/include                                               \
       -include ${nix.dev}/include/nix/config.h                                 \
