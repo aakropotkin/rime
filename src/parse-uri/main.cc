@@ -27,7 +27,7 @@ main( int argc, char * argv[], char ** envp )
         }
     
       res["application-layer"] = scheme.application.value_or( "" );
-      res["translport-layer"]  = scheme.transport;
+      res["transport-layer"]  = scheme.transport;
       std::cout << res.dump() << std::endl;
     }
   return 0;
