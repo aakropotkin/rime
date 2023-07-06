@@ -47,6 +47,19 @@
 
 # ---------------------------------------------------------------------------- #
 
+    testParseIndirectRefFT = {
+      expr     = lib.liburi.parseIndirectRefFT "flake:nixpkgs/main?dir=lib";
+      expected = {
+        type = "indirect";
+        id   = "nixpkgs";
+        ref  = "main";
+        dir  = "lib";
+      };
+    };
+
+
+# ---------------------------------------------------------------------------- #
+
   };  # End Tests
 
 

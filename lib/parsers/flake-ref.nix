@@ -35,10 +35,7 @@
     up   = tryParsePathRefURI url;
     ps   = if up.params == null then {} else lib.liburi.parseQuery up.params;
     dir' = if ps ? dir then { inherit (ps) dir; } else {};
-  in if up == null then null else {
-    inherit url;
-    inherit (up) type path;
-  } // dir';
+  in if up == null then null else { inherit (up) type path; } // dir';
 
   parsePathRefFT =
     defun [Strings.path_ref frs.flake_ref_path] tryParsePathRefFT;
@@ -78,7 +75,7 @@
     m  = builtins.match "(.*.git)(/(.*))?" up.path;
     rr = if ( m == null ) || ( ( builtins.elemAt m 2 ) == null ) then null else
          builtins.elemAt m 2;
-    r' = if rr == null then {}  else
+    r' = if rr == null then {} else
          if yt.Git.rev.check rr then { rev = rr; } else
          { ref = rr; };
   in if up == null then null else {
@@ -88,15 +85,98 @@
           ( if pk == "" then "" else "?" + pk );
   } // r' // p';
 
-
   parseGitRefFT =
     defun [Strings.git_ref frs.flake_ref_git] tryParseGitRefFT;
 
 
 # ---------------------------------------------------------------------------- #
 
-  # TODO: GitHub
+  tryParseGitHubRefURI = s: let
+    # "github:([^/]+)/([^/?]+)(/[^?]+)?(\\?(.*))?"
+    m = builtins.match RE.github_ref_p s;
+  in if m == null then null else {
+    type = "github";
+    path = ( builtins.head m ) + "/" + ( builtins.elemAt m 1 ) +
+           ( if ( builtins.elemAt m 2 ) == null then "" else
+             ( builtins.elemAt m 2 ) );
+    params = builtins.elemAt m 4;
+  };
 
+  # TODO: return type
+  parseGitHubRefURI =
+    defun [Strings.github_ref ( yt.attrs yt.any )] tryParseGitHubRefURI;
+
+
+  tryParseGitHubRefFT = url: let
+    up = tryParseGitHubRefURI url;
+    ps = if up.params == null then {} else lib.liburi.parseQuery up.params;
+    # NOTE: `shortRev' is intentionally ignored.
+    # That field appears in `sourceInfo' but is not an accepted argument, and is
+    # not valid when written in the URL after `.git/<shortRev>'.
+    p' = builtins.intersectAttrs { rev = true; ref = true; dir = true; } ps;
+    pk = lib.liburi.Query.toString ( removeAttrs ps ["rev" "ref" "dir"] );
+    # Handle `REV' in `git+ssh://<HOST>/<OWNER>/<REPO>.git/<REV>?<PARAMS>''
+    m  = builtins.match "([^/]+)/([^/]+)(/(.*))?" up.path;
+    rr = if ( m == null ) || ( ( builtins.elemAt m 2 ) == null ) then null else
+         builtins.elemAt m 3;
+    r' = if rr == null then {} else
+         if yt.Git.rev.check rr then { rev = rr; } else
+         { ref = rr; };
+  in if up == null then null else {
+    inherit (up) type;
+    owner = builtins.head m;
+    repo  = builtins.elemAt m 1;
+  } // r' // p';
+
+
+  parseGitHubRefFT =
+    defun [Strings.github_ref frs.flake_ref_github] tryParseGitHubRefFT;
+
+
+# ---------------------------------------------------------------------------- #
+
+  tryParseIndirectRefURI = s: let
+    # "flake:([^/]+)(/([^?]+))?(\\?(.*))?"
+    m = builtins.match RE.indirect_ref_p s;
+  in if m == null then null else {
+    type = "indirect";
+    path = ( builtins.head m ) +
+           ( if ( builtins.elemAt m 1 ) == null then "" else
+             ( builtins.elemAt m 1 ) );
+    params = builtins.elemAt m 4;
+  };
+
+  # TODO: return type
+  parseIndirectRefURI =
+    defun [Strings.indirect_ref ( yt.attrs yt.any )] tryParseIndirectRefURI;
+
+
+  tryParseIndirectRefFT = url: let
+    m      = builtins.match RE.indirect_ref_p url;
+    params = builtins.elemAt m 5;
+    ps     = if params == null then {} else lib.liburi.parseQuery params;
+    # NOTE: `shortRev' is intentionally ignored.
+    # That field appears in `sourceInfo' but is not an accepted argument, and is
+    # not valid when written in the URL after `.git/<shortRev>'.
+    p' = builtins.intersectAttrs { rev = true; ref = true; dir = true; } ps;
+    pk = lib.liburi.Query.toString ( removeAttrs ps ["rev" "ref" "dir"] );
+    rr = if ( builtins.elemAt m 2 ) == null then null else builtins.elemAt m 3;
+    r' = if rr == null then {} else
+         if yt.Git.rev.check rr then { rev = rr; } else
+         { ref = rr; };
+  in if m == null then null else {
+    type = "indirect";
+    id   = builtins.elemAt m 1;
+  } // r' // p';
+
+
+  parseIndirectRefFT =
+    defun [Strings.indirect_ref frs.flake_ref_indirect] tryParseIndirectRefFT;
+
+
+# ---------------------------------------------------------------------------- #
+
+  # TODO: tarball, file, sourcehut, mercurial
 
 
 # ---------------------------------------------------------------------------- #
@@ -108,11 +188,20 @@ in {
     tryParsePathRefFT
     parsePathRefFT
 
-
     tryParseGitRefURI
     parseGitRefURI
     tryParseGitRefFT
     parseGitRefFT
+
+    tryParseGitHubRefURI
+    parseGitHubRefURI
+    tryParseGitHubRefFT
+    parseGitHubRefFT
+
+    tryParseIndirectRefURI
+    parseIndirectRefURI
+    tryParseIndirectRefFT
+    parseIndirectRefFT
   ;
 }
 

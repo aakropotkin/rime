@@ -15,14 +15,19 @@
 
   Strings = {
     id = let
-      cond = lib.test "[a-zA-Z][a-zA-Z0-9_-]*";
+      cond = lib.test RE.flake_id_p;
     in restrict "flake:ref:id" cond string;
+
+    indirect_ref = restrict "flake:ref[indirect]" ( lib.test RE.indirect_ref_p )
+                            string;
 
     path_ref = restrict "flake:ref[path]" ( lib.test RE.path_ref_p ) string;
     # NOTE: do not confuse this short name with `Git.Strings.ref'.
     # To lib consumers this isn't ambiguous but in this file you could
     # potentially shoot yourself in the foot.
-    git_ref = restrict "flake:ref[git]" ( lib.test RE.git_ref_p ) string;
+    git_ref    = restrict "flake:ref[git]" ( lib.test RE.git_ref_p ) string;
+    github_ref = restrict "flake:ref[github]" ( lib.test RE.github_ref_p )
+                          string;
   };
 
 
@@ -35,6 +40,7 @@
     "file"     # regular file
     "git"      # dir-like with `.git/'
     "hg"       # Mercurial
+    "indirect" # flake alias
   ];
 
   # Allowed to appear in a `type = <REF-TYPE>;' for a flake input.
@@ -122,7 +128,7 @@
     # FIXME: `rev-or-ref' differs from `git' requirement
     flake_ref_github = let
       cond = x: let
-        m    = builtins.match "(github)(\\+[a-z0-9])?:(.*)" x.url;
+        m    = builtins.match "(github):(.*)" x.url;
         type = x.type or ( builtins.head m );
         uofs = ( x ? url ) || ( ( x ? owner ) && ( x ? repo ) );
       in uofs && ( ! ( x ? path ) ) && ( type == "github" );
@@ -146,8 +152,8 @@
 
     flake_ref_indirect = let
       cond = x: let
-        m    = builtins.match "(indirect)(\\+[a-z0-9])?:(.*)" x.url;
-        type = x.type or ( builtins.head m );
+        m    = builtins.match RE.indirect_ref_p x.url;
+        type = x.type or ( if m != null then "indirect" else null );
         nos  = x == ( removeAttrs x ["path" "repo" "owner" "rev"] );
         uofs = ( x ? url ) || ( x ? id ) || ( x ? follows );
         tofl = ( x ? follows ) || ( type == "indirect" );
