@@ -9,6 +9,7 @@
   yt = ytypes // ytypes.Core // ytypes.Prim;
   inherit (yt) struct string restrict option enum int;
   lib.test = patt: s: ( builtins.match patt s ) != null;
+  RE = import ../re/flake-ref.nix;
 
 # ---------------------------------------------------------------------------- #
 
@@ -17,11 +18,11 @@
       cond = lib.test "[a-zA-Z][a-zA-Z0-9_-]*";
     in restrict "flake:ref:id" cond string;
 
-    path_ref = restrict "flake:ref[path]" ( lib.test path_ref_p ) string;
+    path_ref = restrict "flake:ref[path]" ( lib.test RE.path_ref_p ) string;
     # NOTE: do not confuse this short name with `Git.Strings.ref'.
     # To lib consumers this isn't ambiguous but in this file you could
     # potentially shoot yourself in the foot.
-    git_ref = restrict "flake:ref[git]" ( lib.test git_ref_p ) string;
+    git_ref = restrict "flake:ref[git]" ( lib.test RE.git_ref_p ) string;
   };
 
 
@@ -61,46 +62,6 @@
     revCount     = int; # Git/Mercurial
     lastModified = int; # Any
   };
-
-
-# ---------------------------------------------------------------------------- #
-
-  # Allowed to be an absolute or relative path.
-  path_ref_p = "(path:)?([^:?]*)(\\?(.*))?";
-  tryParsePathRef = s: let
-    m = builtins.match path_ref_p s;
-    p = builtins.elemAt m 1;
-  in if m == null then null else {
-    type   = "path";
-    path   = if p == "" then "." else if p == "./." then "." else p;
-    params = builtins.elemAt m 3;
-  };
-
-  # FIXME: return type
-  parsePathRef =
-    yt.defun [Strings.path_ref ( yt.attrs yt.any )] tryParsePathRef;
-
-
-# ---------------------------------------------------------------------------- #
-
-  # A rough parse largely aimed at identifying the scheme.
-  git_ref_p = "(git(\\+(https?|ssh|git|file))?):(//[^/]+)?(/[^?]+)(\\?(.*))?";
-  tryParseGitRef = s: let
-    m  = builtins.match git_ref_p s;
-    u  = lib.test "git://[^@]+@.*" s;
-    t  = builtins.elemAt m 2;
-    tf = if u then "ssh" else "https";
-  in if m == null then null else {
-    type      = "git";
-    transport = if ( t == null ) then tf else t;
-    server    = builtins.elemAt m 3;
-    path      = builtins.elemAt m 4;
-    params    = builtins.elemAt m 6;
-  };
-
-  # FIXME: return type
-  parseGitRef =
-    yt.defun [Strings.git_ref ( yt.attrs yt.any )] tryParseGitRef;
 
 
 # ---------------------------------------------------------------------------- #
@@ -199,16 +160,8 @@
 # ---------------------------------------------------------------------------- #
 
 in {
-  inherit Strings Structs;
+  inherit Strings Structs RE;
   Enums = { inherit data_scheme ref_type; };
-  # FIXME: move to lib
-  RE = { inherit path_ref_p git_ref_p; };
-  inherit
-    tryParsePathRef
-    parsePathRef
-    tryParseGitRef
-    parseGitRef
-  ;
 }
 
 # ---------------------------------------------------------------------------- #

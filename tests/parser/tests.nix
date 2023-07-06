@@ -31,6 +31,22 @@
 
 # ---------------------------------------------------------------------------- #
 
+    testParseGitRefFT = let
+      url = "git+ssh://git@github.com:aakropotkin/rime.git/main" +
+            "?dir=bar&shortRev=6666666";
+    in {
+      expr     = lib.liburi.parseGitRefFT url;
+      expected = {
+        type = "git";
+        url  = "ssh://git@github.com:aakropotkin/rime.git?shortRev=6666666";
+        ref  = "main";
+        dir  = "bar";
+      };
+    };
+
+
+# ---------------------------------------------------------------------------- #
+
   };  # End Tests
 
 
