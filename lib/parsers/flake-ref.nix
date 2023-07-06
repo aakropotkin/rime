@@ -78,10 +78,9 @@
     m  = builtins.match "(.*.git)(/(.*))?" up.path;
     rr = if ( m == null ) || ( ( builtins.elemAt m 2 ) == null ) then null else
          builtins.elemAt m 2;
-    r'    = if rr == null then {} else
-            if yt.Git.rev.check rr       then { rev = rr; } else
-            if yt.Git.short_rev.check rr then { rev = rr; } else
-            { ref = rr; };
+    r' = if rr == null then {}  else
+         if yt.Git.rev.check rr then { rev = rr; } else
+         { ref = rr; };
   in if up == null then null else {
     inherit (up) type;
     url = up.transport + ":" + up.server +
@@ -92,6 +91,12 @@
 
   parseGitRefFT =
     defun [Strings.git_ref frs.flake_ref_git] tryParseGitRefFT;
+
+
+# ---------------------------------------------------------------------------- #
+
+  # TODO: GitHub
+
 
 
 # ---------------------------------------------------------------------------- #
