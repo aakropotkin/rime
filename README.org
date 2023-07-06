@@ -20,6 +20,18 @@ let =rime= do the heavy lifting for ya.
 Thin crystal layer of ice and snow formed by fog; particularly on branches.
 
 
+** Quick Start
+#+BEGIN_SRC nix
+nix-repl> :lf github:aakropotkin/rime
+
+nix-repl> lib.liburi.flakeRefAttrsToString { type = "github"; owner = "aakropotkin"; repo = "floco"; dir = "bar"; }
+"github:aakropotkin/floco?dir=bar"
+
+nix-repl> lib.liburi.parseFlakeRefFT "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz?dir=foo"
+{ dir = "foo"; type = "tarball"; url = "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"; }
+#+END_SRC
+
+
 * libs and types
 
 Given that the Nix flakes interfaces revolve around URI parsing, I've defined
