@@ -1,6 +1,7 @@
-#+TITLE: Rime: Nix URI libs
+#+TITLE: Rime: Nix URI libs and utils
 
-* About
+* Rime
+
 =rime= fully implements a spec compliant URI parser in pure Nix.
 
 Additionally this repo provides type abstractions for parsing
@@ -13,20 +14,33 @@ these routines as executables for use in scripts.
 If you're processing URIs with Nix don't do it from scratch, 
 let =rime= do the heavy lifting for ya.
 
+
 ** "Rime"
+
 Thin crystal layer of ice and snow formed by fog; particularly on branches.
 
-** libs and types
-Given that the Nix flakes interfaces revolve around URI parsing, I've defined some URI parsers and types ( using [[https://code.tvl.fyi/plain/nix/yants/default.nix][YANTS]] ).
 
-I initially took a shot at exposing Nix's builtin =parseFlakeRef= or =fetchTree= routines, but they were rooted in the actual fetching of flakes and trees to port as standalone routines.
-It could be done, but it's less effort for me to just write that stuff in Nix anyway and avoid fooling with plugins.
+* libs and types
 
-** Templates
-*** =inputs.nix=
-A shim exposing =flake.lock= contents to CLI tooling and non-flake Nix expressions.
-This should have a dramatic effect on performance of "dirty tree" operations in large
-repositories when used in combination with ~nix (build|eval) -f ./build.nix;~.
+Given that the Nix flakes interfaces revolve around URI parsing, I've defined
+some URI parsers and types ( using [[https://code.tvl.fyi/plain/nix/yants/default.nix][YANTS]] ).
+
+I initially took a shot at exposing Nix's builtin =parseFlakeRef= or
+=fetchTree= routines, but they were rooted in the actual fetching of flakes
+and trees to port as standalone routines.
+It could be done, but it's less effort for me to just write that stuff in Nix
+anyway and avoid fooling with plugins.
+
+* Templates
+
+** =inputs.nix=
+
+A shim exposing =flake.lock= contents to CLI tooling and non-flake
+Nix expressions.
+
+This should have a dramatic effect on performance of "dirty tree"
+operations in large repositories when used in combination
+with ~nix (build|eval) -f ./build.nix;~.
 
 #+BEGIN_SRC shell
 # Add `inputs.nix' to a flake
@@ -63,8 +77,11 @@ $ nix eval --json -f inputs.nix ak-nix.locked|jq;
 }
 #+END_SRC
 
-** Flake Ref Types
-These YANTS types can be used to assert the validity of "flake refs", like those used as flake inputs, or arguments to =builtins.fetchTree=.
+
+* Flake Ref Types
+
+These =YANTS= types can be used to assert the validity of "flake refs", like
+those used as flake inputs, or arguments to =builtins.fetchTree=.
 
 #+BEGIN_SRC nix
   nix-repl> :p map ( builtins.getFlake "github:aakropotkin/rime/main" ).lib.ytypes.FlakeRef.Structs.flake_ref_github [
@@ -93,7 +110,7 @@ These types will =throw= on failure.
          } does not conform to restriction 'flake_ref[file]'
 #+END_SRC
 
-*** Available Checks
+** Available Checks
 - =flake_ref= abstract form, allows any combination of fields used by children.
 - =flake_ref_indirect= an ~inputs.foo.follows = "bar";~ style ref.
 - =flake_ref_path=
@@ -104,48 +121,111 @@ These types will =throw= on failure.
 - =flake_ref_sourcehut= ( basically an alias of =github=, not tested exhaustibly )
 - =flake_ref_mercurial= ( basically an alias of =github=, not tested exhaustibly )
 
-** Utilities and Scripts
-Rime provides a handful of useful scripts that help extract info from Nix.
-These are generally pretty simple, and most anyone could cook these up as shell aliases;
-but exposing them in this flake allows me to lock and consume them in other projects
 
-*** =nix-outputs=
-Given a package name or installable URI, print the available outputs for the derivation.
+* Utilities and Scripts
+
+Rime provides a handful of useful scripts that help extract info from Nix.
+These are generally pretty simple, and most anyone could cook these up as
+shell aliases; but exposing them in this flake allows me to lock and consume
+them in other projects
+
+
+** =nix-outputs=
+
+Given a package name or installable URI, print the available outputs for
+the derivation.
 This simply dumps =<DERIVATION>.outputs= as a JSON list.
 
-Use this to quickly look up extras that might hold headers, libs, docs, etc for a package.
+Use this to quickly look up extras that might hold headers, libs, docs, etc
+for a package.
 
 If no URI is given, arg is interpreted as an attr on =nixpkgs=.
 
-**** Options
+*** Options
 - =-H,--no-header=
 Suppress log-line ( normally printed to STDERR ).
 
-*** =nix2json=
+
+** =nix2json=
+
 Naively convert a Nix file to JSON.
-Faster than =nix-serialize=, but will fail on input that contains functions or store paths.
+Faster than =nix-serialize=, but will fail on input that contains functions
+or store paths.
 
-*** =nix-serialize=
+
+** =nix-serialize=
+
 Best effort conversion from Nix to a /flat/ representation.
-Intended to take a URI as an arg for an attrset/installable, which gets processed through
-=nix eval "$@" --json --impure --apply ...=.
+Intended to take a URI as an arg for an attrset/installable, which gets
+processed through ~nix eval "$@" --json --impure --apply ...~.
 
-Similar to =nixpkgs#lib.generators.toPretty= but supports =__serial= functors from
-[[https://github.com/aameen-tulip/at-node-nix][github:aameen-tulip/at-node-nix]], and will
-completely remove fields that cannot be converted to JSON.
+Similar to =nixpkgs#lib.generators.toPretty= but supports =__serial=
+functors from [[https://github.com/aameen-tulip/at-node-nix][github:aameen-tulip/at-node-nix]], and will completely remove
+fields that cannot be converted to JSON.
 
-*** =nix-prefetch-tree=
-Prefetch /flake ref/ URI ( it doesn't need to point to a flake ) and print the "locked"
-attribute representation.
+
+** =nix-prefetch-tree=
+
+Prefetch /flake ref/ URI ( it doesn't need to point to a flake ) and print
+the "locked" attribute representation.
 
 This can be used to lookup =narHash= for URLs quickly.
-I basically made this entire script to /try catch/ to create =narHash= locks on large numbers
-of tarballs. 
+I basically made this entire script to /try catch/ to create =narHash= locks
+on large numbers of tarballs.
 
-By default we assume you assume you are prefetching a tarball, but adding =--type ARG= allows
-you to prefetch any type of ref.
+By default we assume you assume you are prefetching a tarball, but adding
+=--type ARG= allows you to prefetch any type of ref.
 
-**** Options
+*** Options
 - =-K, --fallback=
-When fetching tarballs, if unpacking fails ( due to archive permissions ) fall back to
-fetching as a regular file.
+When fetching tarballs, if unpacking fails ( due to archive permissions )
+fall back to fetching as a regular file.
+
+
+** =nix-parse-uri=
+
+Parse URIs and dump as JSON.
+Multiple arguments will produce multiple one JSON record per line of output.
+
+This uses Nix's internal =parseURL= and =parseUrlScheme= functions and is
+more lightweight than ~nix flake prefetch~.
+
+#+BEGIN_SRC sh
+  $ nix run github:aakropotkin/rime#nix-parse-uri "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz?foo=bar&baz=1#hey"|jq;
+  {
+    "application-layer": "",
+    "authority": "registry.npmjs.org",
+    "base": "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz",
+    "fragment": "hey",
+    "path": "/lodash/-/lodash-4.17.21.tgz",
+    "query": {
+      "baz": "1",
+      "foo": "bar"
+    },
+    "scheme": "https",
+    "translport-layer": "https"
+  }
+#+END_SRC
+
+
+** =resolve=
+
+Resolve a URL using the ~nix registry~ without necessarily fetching or
+locking the given tree.
+This differs from ~nix flake prefetch~ in that =resolve= is able to print
+unlocked URLs and runs significantly faster because it doesn't fetch.
+
+#+BEGIN_SRC shell
+  $ nix run github:aakropotkin/rime#resolve nixpkgs;
+  github:NixOS/nixpkgs/nixpkgs-unstable;
+
+  $ nix registry pin nixpkgs;
+
+  $ nix run github:aakropotkin/rime#resolve nixpkgs;
+  github:NixOS/nixpkgs/ea11a3977f4cba013d8680667616be827c967ac0
+
+  $ nix registry remove nixpkgs;
+
+  $ nix run github:aakropotkin/rime#resolve nixpkgs;
+  github:NixOS/nixpkgs/nixpkgs-unstable;
+#+END_SRC

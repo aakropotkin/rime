@@ -24,7 +24,7 @@
       -I${boost.dev}/include                                                   \
       -I${nlohmann_json}/include                                               \
       -include ${nix.dev}/include/nix/config.h                                 \
-      $(pkg-config --libs --cflags nix-main nix-store nix-expr)                \
+      $( pkg-config --libs --cflags nix-main nix-store nix-expr; )             \
       -o "$pname"                                                              \
       ${if stdenv.isDarwin then "-undefined suppress -flat_namespace" else ""} \
       ./main.cc                                                                \
