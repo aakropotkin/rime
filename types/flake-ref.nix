@@ -28,6 +28,31 @@
     git_ref    = restrict "flake:ref[git]" ( lib.test RE.git_ref_p ) string;
     github_ref = restrict "flake:ref[github]" ( lib.test RE.github_ref_p )
                           string;
+
+    tarball_ref = let
+      pred = s: let
+        m           = builtins.match RE.tarball_ref_p s;
+        hasTbPrefix = ( builtins.elemAt m 1 ) != null;
+        hasTbSuffix = ( builtins.elemAt m 5 ) != null;
+      in ( m != null ) && ( hasTbPrefix || hasTbSuffix );
+    in restrict "flake:ref[tarball]" pred string;
+
+    file_ref = let
+      pred = s: let
+        m             = builtins.match RE.file_ref_p s;
+        hasFilePrefix = ( builtins.elemAt m 1 ) != null;
+        t             = builtins.match RE.tarball_ref_p s;
+        hasTbPrefix   = ( builtins.elemAt t 1 ) != null;
+        hasTbSuffix   = ( builtins.elemAt t 5 ) != null;
+      in ( m != null ) && ( hasFilePrefix || ( ! hasTbSuffix ) );
+    in restrict "flake:ref[file]" pred string;
+
+
+    sourcehut_ref =
+      restrict "flake:ref[sourcehut]" ( lib.test "sourcehut:.*" ) string;
+
+    mercurial_ref = restrict "flake:ref[mercurial]" ( lib.test "hg:.*" ) string;
+
   };
 
 
@@ -165,8 +190,25 @@
 
 # ---------------------------------------------------------------------------- #
 
+  Eithers = {
+    flake_ref_indirect =
+      yt.either Strings.indirect_ref Structs.flake_ref_indirect;
+    flake_ref_sourcehut =
+      yt.either Strings.sourcehut_ref Structs.flake_ref_sourcehut;
+    flake_ref_mercurial =
+      yt.either Strings.mercurial_ref Structs.flake_ref_mercurial;
+    flake_ref_path    = yt.either Strings.path_ref Structs.flake_ref_path;
+    flake_ref_git     = yt.either Strings.git_ref Structs.flake_ref_git;
+    flake_ref_github  = yt.either Strings.github_ref Structs.flake_ref_github;
+    flake_ref_tarball = yt.either Strings.tarball_ref Structs.flake_ref_tarball;
+    flake_ref_file    = yt.either Strings.file_ref Structs.flake_ref_file;
+  };
+
+
+# ---------------------------------------------------------------------------- #
+
 in {
-  inherit Strings Structs RE;
+  inherit Strings Structs RE Eithers;
   Enums = { inherit data_scheme ref_type; };
 }
 
