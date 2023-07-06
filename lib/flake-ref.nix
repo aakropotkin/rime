@@ -88,9 +88,9 @@
           ""
         );
       tarball = { url, ... }:
-        if lib.test ".*:.*" then "tarball+" + url else "tarball:" + url;
+        if lib.test ".*:.*" url then "tarball+" + url else "tarball:" + url;
       file = { url, ... }:
-        if lib.test ".*:.*" then "file+" + url else "file:" + url;
+        if lib.test ".*:.*" url then "file+" + url else "file:" + url;
       sourcehut = { owner, repo, ref ? null, rev ? null, ... }:
         "sourcehut:" + owner + "/" +repo + (
           if rev != null then "/" + rev else
@@ -105,10 +105,14 @@
         );
     };
   in x: let
-    base = lams.${identifyFlakeRef x} ( removeAttrs x ["dir"] );
-  in if ! ( x ? dir ) then base else
-     if lib.test ".*\\?.*" base then base + "&dir=" + x.dir else
-     base + "?dir=" + x.dir;
+    type  = lib.liburi.identifyFlakeRef x;
+    base  = ( builtins.getAttr type lams ) ( removeAttrs x ["dir" "narHash"] );
+    keeps = { dir = true; } // ( if builtins.elem type ["file" "tarball"] then {
+      narHash = true;
+    } else {} );
+    qs = lib.liburi.Query.toString ( builtins.intersectAttrs keeps x );
+  in if qs == "" then base else
+     if lib.test ".*\\?.*" base then base + "&" + qs else base + "?" + qs;
 
 
 # ---------------------------------------------------------------------------- #

@@ -201,8 +201,8 @@
       m      = builtins.match "(tarball\\+)?([^?]+)(\\?(.*))?" u;
       params = builtins.elemAt m 3;
       ps     = if params == null then {} else lib.liburi.parseQuery params;
-      p'     = builtins.intersectAttrs { dir = true; } ps;
-      pk     = lib.liburi.Query.toString ( removeAttrs ps ["dir"] );
+      p'     = builtins.intersectAttrs { dir = true; narHash = true; } ps;
+      pk     = lib.liburi.Query.toString ( removeAttrs ps ["dir" "narHash"] );
     in {
       type = "tarball";
       url  = ( builtins.elemAt m 1 ) + ( if pk == "" then "" else "?" + pk );
@@ -211,8 +211,8 @@
       m      = builtins.match "(file\\+)?([^?]+)(\\?(.*))?" u;
       params = builtins.elemAt m 3;
       ps     = if params == null then {} else lib.liburi.parseQuery params;
-      p'     = builtins.intersectAttrs { dir = true; } ps;
-      pk     = lib.liburi.Query.toString ( removeAttrs ps ["dir"] );
+      p'     = builtins.intersectAttrs { dir = true; narHash = true; } ps;
+      pk     = lib.liburi.Query.toString ( removeAttrs ps ["dir" "narHash"] );
     in {
       type = "file";
       url  = ( builtins.elemAt m 1 ) + ( if pk == "" then "" else "?" + pk );
