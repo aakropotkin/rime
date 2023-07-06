@@ -24,14 +24,14 @@
   };
 
   typesStrings = {
-    indirect  = yt.FlakeRef.Strings.ref_indirect;
-    path      = yt.FlakeRef.Strings.ref_path;
-    git       = yt.FlakeRef.Strings.ref_git;
-    github    = yt.FlakeRef.Strings.ref_github;
-    tarball   = yt.FlakeRef.Strings.ref_tarball;
-    file      = yt.FlakeRef.Strings.ref_file;
-    sourcehut = yt.FlakeRef.Strings.ref_sourcehut;
-    mercurial = yt.FlakeRef.Strings.ref_mercurial;
+    indirect  = yt.FlakeRef.Strings.indirect_ref;
+    path      = yt.FlakeRef.Strings.path_ref;
+    git       = yt.FlakeRef.Strings.git_ref;
+    github    = yt.FlakeRef.Strings.github_ref;
+    tarball   = yt.FlakeRef.Strings.tarball_ref;
+    file      = yt.FlakeRef.Strings.file_ref;
+    sourcehut = yt.FlakeRef.Strings.sourcehut_ref;
+    mercurial = yt.FlakeRef.Strings.mercurial_ref;
   };
 
   typesStructs = {

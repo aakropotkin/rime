@@ -178,6 +178,55 @@
 
   # TODO: tarball, file, sourcehut, mercurial
 
+  typesStrings = {
+    indirect  = yt.FlakeRef.Strings.indirect_ref;
+    path      = yt.FlakeRef.Strings.path_ref;
+    git       = yt.FlakeRef.Strings.git_ref;
+    github    = yt.FlakeRef.Strings.github_ref;
+    tarball   = yt.FlakeRef.Strings.tarball_ref;
+    file      = yt.FlakeRef.Strings.file_ref;
+    sourcehut = yt.FlakeRef.Strings.sourcehut_ref;
+    mercurial = yt.FlakeRef.Strings.mercurial_ref;
+  };
+
+
+  tryParseFlakeRefFT = url: let
+    type = lib.liburi.identifyFlakeRef url;
+  in if type == null then null else ( builtins.getAttr type {
+    indirect = tryParseIndirectRefFT;
+    path     = tryParsePathRefFT;
+    git      = tryParseGitRefFT;
+    github   = tryParseGitHubRefFT;
+    tarball     = u: let
+      m      = builtins.match "(tarball\\+)?([^?]+)(\\?(.*))?" u;
+      params = builtins.elemAt m 3;
+      ps     = if params == null then {} else lib.liburi.parseQuery params;
+      p'     = builtins.intersectAttrs { dir = true; } ps;
+      pk     = lib.liburi.Query.toString ( removeAttrs ps ["dir"] );
+    in {
+      type = "tarball";
+      url  = ( builtins.elemAt m 1 ) + ( if pk == "" then "" else "?" + pk );
+    } // p';
+    file = u: let
+      m      = builtins.match "(file\\+)?([^?]+)(\\?(.*))?" u;
+      params = builtins.elemAt m 3;
+      ps     = if params == null then {} else lib.liburi.parseQuery params;
+      p'     = builtins.intersectAttrs { dir = true; } ps;
+      pk     = lib.liburi.Query.toString ( removeAttrs ps ["dir"] );
+    in {
+      type = "file";
+      url  = ( builtins.elemAt m 1 ) + ( if pk == "" then "" else "?" + pk );
+    } // p';
+    # TODO
+    sourcehut = _: null;
+    mercurial = _: null;
+  } ) url;
+
+  parseFlakeRefFT =
+    defun [( yt.eitherN ( builtins.attrValues typesStrings ) )
+           yt.FlakeRef.Structs.flake_ref
+          ] tryParseFlakeRefFT;
+
 
 # ---------------------------------------------------------------------------- #
 
@@ -202,6 +251,9 @@ in {
     parseIndirectRefURI
     tryParseIndirectRefFT
     parseIndirectRefFT
+
+    tryParseFlakeRefFT
+    parseFlakeRefFT
   ;
 }
 
