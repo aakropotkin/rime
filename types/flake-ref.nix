@@ -65,7 +65,7 @@
     "file"     # regular file
     "git"      # dir-like with `.git/'
     "hg"       # Mercurial
-    "indirect" # flake alias
+    "flake"    # flake alias
   ];
 
   # Allowed to appear in a `type = <REF-TYPE>;' for a flake input.
@@ -99,7 +99,8 @@
 
   Structs = {
     flake_ref = struct "flake:ref" {
-      type         = option data_scheme;  # must be inferred if omitted
+      # must be inferred if omitted
+      type         = option ( yt.either data_scheme ref_type );
       id           = option Strings.id;
       dir          = option string;  # Not actually a path.
       narHash      = option yt.Strings.sha256_sri;
