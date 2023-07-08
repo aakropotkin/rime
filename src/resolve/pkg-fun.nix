@@ -15,10 +15,10 @@
       "Makefile"
     ] );
   };
-  nativeBuildInputs     = [pkg-config];
-  buildInputs           = [nix.dev boost nlohmann_json];
-  dontConfigure         = true;
-  buildPhase            = ''
+  nativeBuildInputs = [pkg-config];
+  buildInputs       = [nix.dev boost nlohmann_json];
+  dontConfigure     = true;
+  buildPhase        = ''
     $CXX                                                                       \
       -I${nix.dev}/include                                                     \
       -I${boost.dev}/include                                                   \
