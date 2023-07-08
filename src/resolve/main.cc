@@ -32,6 +32,11 @@ main( int argc, char * argv[], char ** envp )
         nix::fetchers::jsonToAttrs( rawInput )
       );
     }
+  catch( nix::BadURL & b )
+    {
+      std::cerr << b.what() << std::endl;
+      throw b;
+    }
   catch( ... )
     {
       rawInput      = argv[1];
