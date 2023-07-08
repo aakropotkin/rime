@@ -20,20 +20,22 @@ main( int argc, char * argv[], char ** envp )
 
   nix::EvalState state( {}, nix::openStore() );
 
-  nlohmann::json input = nlohmann::json();
-  std::optional<nix::FlakeRef> originalRef = std::nullopt;
+  nlohmann::json       rawInput      = nlohmann::json();
+  nix::fetchers::Input originalInput;
+
+  // TODO: handle `baseDir'
 
   try
     {
-      input = nlohmann::json::parse( argv[1] );
-      originalRef = nix::FlakeRef::fromAttrs(
-        nix::fetchers::jsonToAttrs( input )
+      rawInput = nlohmann::json::parse( argv[1] );
+      originalInput = nix::fetchers::Input::fromAttrs(
+        nix::fetchers::jsonToAttrs( rawInput )
       );
     }
   catch( ... )
     {
-      input       = argv[1];
-      originalRef = nix::parseFlakeRef( argv[1], nix::absPath( "." ) );
+      rawInput      = argv[1];
+      originalInput = nix::fetchers::Input::fromURL( rawInput );
     }
 
   /**
@@ -50,13 +52,16 @@ main( int argc, char * argv[], char ** envp )
    * }
    */
 
-  nix::FlakeRef resolvedRef = originalRef.value().resolve( state.store );
+  nix::FlakeRef originalRef = nix::parseFlakeRef(
+    originalInput.to_string(), nix::absPath( "." )
+  );
+  nix::FlakeRef resolvedRef = originalRef.resolve( state.store );
 
-  nlohmann::json j = {
-    { "input", std::move( input ) }
-  , { "originalRef", nlohmann::json {
-      { "string", originalRef.value().to_string() }
-    , { "attrs",  nix::fetchers::attrsToJSON( originalRef.value().toAttrs() ) }
+  nlohmann::json j = nlohmann::json {
+    { "input", std::move( rawInput ) }
+  , { "originalRef", {
+      { "string", originalInput.to_string() }
+    , { "attrs",  nix::fetchers::attrsToJSON( originalInput.toAttrs() ) }
     } }
   , { "resolvedRef", nlohmann::json {
       { "string", resolvedRef.to_string() }
