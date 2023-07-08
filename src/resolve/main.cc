@@ -1,6 +1,8 @@
 
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
 #include <string>
-#include <optional>
 
 #include <nix/shared.hh>
 #include <nix/eval.hh>
@@ -20,87 +22,40 @@ main( int argc, char * argv[], char ** envp )
 
   nix::EvalState state( {}, nix::openStore() );
 
-  nlohmann::json       rawInput      = nlohmann::json();
-  nix::fetchers::Input originalInput;
+  bool isJSONArg = strchr( argv[1], '{' ) != nullptr;
 
-  // TODO: handle `baseDir'
+  nlohmann::json rawInput =
+    isJSONArg ? nlohmann::json::parse( argv[1] ) : argv[1];
 
   try
     {
-      rawInput = nlohmann::json::parse( argv[1] );
-      originalInput = nix::fetchers::Input::fromAttrs(
-        nix::fetchers::jsonToAttrs( rawInput )
-      );
+      nix::FlakeRef originalRef =
+        isJSONArg ? nix::FlakeRef::fromAttrs(
+                      nix::fetchers::jsonToAttrs( rawInput )
+                    )
+                  : nix::parseFlakeRef( argv[1], nix::absPath( "." ) );
+
+      nix::FlakeRef resolvedRef = originalRef.resolve( state.store );
+
+      nlohmann::json j = nlohmann::json {
+        { "input", std::move( rawInput ) }
+      , { "originalRef", {
+          { "string", originalRef.to_string() }
+        , { "attrs",  nix::fetchers::attrsToJSON( originalRef.toAttrs() ) }
+        } }
+      , { "resolvedRef", nlohmann::json {
+          { "string", resolvedRef.to_string() }
+        , { "attrs",  nix::fetchers::attrsToJSON( resolvedRef.toAttrs() ) }
+        } }
+      };
+
+      std::cout << j.dump() << std::endl;
     }
-  catch( nix::BadURL & b )
+  catch( std::exception & e )
     {
-      try
-        {
-          originalInput = nix::parseFlakeRef(
-            rawInput, nix::absPath( "." )
-          ).input;
-        }
-      catch( nix::BadURL & b )
-        {
-          std::cerr << b.what() << std::endl;
-          throw b;
-        }
-    }
-  catch( ... )
-    {
-      rawInput = argv[1];
-      try
-        {
-          originalInput = nix::fetchers::Input::fromURL( rawInput );
-        }
-      catch( nix::BadURL & b )
-        {
-          try
-            {
-              originalInput = nix::parseFlakeRef(
-                rawInput, nix::absPath( "." )
-              ).input;
-            }
-          catch( nix::BadURL & b )
-            {
-              std::cerr << b.what() << std::endl;
-              throw b;
-            }
-        }
+      std::cerr << e.what() << std::endl;
+      return EXIT_FAILURE;
     }
 
-  /**
-   * {
-   *   "input":  <STR|ATTRS>
-   * , "originalRef": {
-   *     "string": <STR>
-   *   , "attrs":  <ATTRS>
-   *   }
-   * , "resolvedRef": {
-   *     "string": <STR>
-   *   , "attrs":  <ATTRS>
-   *   }
-   * }
-   */
-
-  nix::FlakeRef originalRef = nix::parseFlakeRef(
-    originalInput.to_string(), nix::absPath( "." )
-  );
-  nix::FlakeRef resolvedRef = originalRef.resolve( state.store );
-
-  nlohmann::json j = nlohmann::json {
-    { "input", std::move( rawInput ) }
-  , { "originalRef", {
-      { "string", originalInput.to_string() }
-    , { "attrs",  nix::fetchers::attrsToJSON( originalInput.toAttrs() ) }
-    } }
-  , { "resolvedRef", nlohmann::json {
-      { "string", resolvedRef.to_string() }
-    , { "attrs",  nix::fetchers::attrsToJSON( resolvedRef.toAttrs() ) }
-    } }
-  };
-
-  std::cout << j.dump() << std::endl;
-
-  return 0;
+  return EXIT_SUCCESS;
 }

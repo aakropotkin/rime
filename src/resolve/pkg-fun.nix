@@ -24,11 +24,12 @@
       -I${boost.dev}/include                                                   \
       -I${nlohmann_json}/include                                               \
       -include ${nix.dev}/include/nix/config.h                                 \
-      $( pkg-config --libs --cflags nix-main nix-store nix-expr; )             \
-      -lnixfetchers                                                            \
-      -o "$pname"                                                              \
-      ${if stdenv.isDarwin then "-undefined suppress -flat_namespace" else ""} \
       ./main.cc                                                                \
+      -Wl,--as-needed                                                          \
+      $(pkg-config --libs --cflags nix-cmd nix-main nix-store nix-expr)        \
+      -lnixfetchers                                                            \
+      -Wl,--no-as-needed                                                       \
+      -o "$pname"                                                              \
     ;
   '';
   installPhase = ''
