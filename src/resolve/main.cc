@@ -1,5 +1,6 @@
 
 #include <string>
+#include <optional>
 
 #include <nix/shared.hh>
 #include <nix/eval.hh>
@@ -19,12 +20,51 @@ main( int argc, char * argv[], char ** envp )
 
   nix::EvalState state( {}, nix::openStore() );
 
-  nix::FlakeRef originalRef =
-    nix::parseFlakeRef( argv[1], nix::absPath( "." ) );
+  nlohmann::json input = nlohmann::json();
+  std::optional<nix::FlakeRef> originalRef = std::nullopt;
 
-  nix::FlakeRef resolvedRef = originalRef.resolve( state.store );
-  
-  std::cout << resolvedRef.to_string() << std::endl;
+  try
+    {
+      input = nlohmann::json::parse( argv[1] );
+      originalRef = nix::FlakeRef::fromAttrs(
+        nix::fetchers::jsonToAttrs( input )
+      );
+    }
+  catch( ... )
+    {
+      input       = argv[1];
+      originalRef = nix::parseFlakeRef( argv[1], nix::absPath( "." ) );
+    }
+
+  /**
+   * {
+   *   "input":  <STR|ATTRS>
+   * , "originalRef": {
+   *     "string": <STR>
+   *   , "attrs":  <ATTRS>
+   *   }
+   * , "resolvedRef": {
+   *     "string": <STR>
+   *   , "attrs":  <ATTRS>
+   *   }
+   * }
+   */
+
+  nix::FlakeRef resolvedRef = originalRef.value().resolve( state.store );
+
+  nlohmann::json j = {
+    { "input", std::move( input ) }
+  , { "originalRef", nlohmann::json {
+      { "string", originalRef.value().to_string() }
+    , { "attrs",  nix::fetchers::attrsToJSON( originalRef.value().toAttrs() ) }
+    } }
+  , { "resolvedRef", nlohmann::json {
+      { "string", resolvedRef.to_string() }
+    , { "attrs",  nix::fetchers::attrsToJSON( resolvedRef.toAttrs() ) }
+    } }
+  };
+
+  std::cout << j.dump() << std::endl;
 
   return 0;
 }

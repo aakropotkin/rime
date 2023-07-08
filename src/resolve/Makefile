@@ -29,7 +29,9 @@ CPPFLAGS =                                         \
 CXXFLAGS = -std=c++17
 
 LDFLAGS =  \
-	$(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) --libs nix-store nix-main nix-expr)
+	$(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) --libs nix-store nix-main nix-expr)  \
+  -lnixfetchers
+
 
 
 resolve: main.cc
