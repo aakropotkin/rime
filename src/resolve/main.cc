@@ -34,13 +34,39 @@ main( int argc, char * argv[], char ** envp )
     }
   catch( nix::BadURL & b )
     {
-      std::cerr << b.what() << std::endl;
-      throw b;
+      try
+        {
+          originalInput = nix::parseFlakeRef(
+            rawInput, nix::absPath( "." )
+          ).input;
+        }
+      catch( nix::BadURL & b )
+        {
+          std::cerr << b.what() << std::endl;
+          throw b;
+        }
     }
   catch( ... )
     {
-      rawInput      = argv[1];
-      originalInput = nix::fetchers::Input::fromURL( rawInput );
+      rawInput = argv[1];
+      try
+        {
+          originalInput = nix::fetchers::Input::fromURL( rawInput );
+        }
+      catch( nix::BadURL & b )
+        {
+          try
+            {
+              originalInput = nix::parseFlakeRef(
+                rawInput, nix::absPath( "." )
+              ).input;
+            }
+          catch( nix::BadURL & b )
+            {
+              std::cerr << b.what() << std::endl;
+              throw b;
+            }
+        }
     }
 
   /**
