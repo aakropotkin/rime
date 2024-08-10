@@ -5,7 +5,7 @@ set -o pipefail;
 
 : "${NIX:=nix}";
 : "${COMPACT:=}";
-: "${MKTEMP:=}";
+: "${MKTEMP:=mktemp}";
 : "${REALPATH:=realpath}";
 
 _es=0;
